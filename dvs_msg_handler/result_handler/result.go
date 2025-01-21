@@ -1,7 +1,7 @@
 package resulthandler
 
 import (
-	sdk "github.com/pelldvs/pellapp-sdk/types"
+	sdk "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	"github.com/cosmos/gogoproto/proto"
 )

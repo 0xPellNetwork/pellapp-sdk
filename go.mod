@@ -1,4 +1,4 @@
-module github.com/pelldvs/pellapp-sdk
+module github.com/0xPellNetwork/pellapp-sdk
 
 go 1.23.3
 

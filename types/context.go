@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	dvstypes "github.com/pelldvs/pellapp-sdk/pelldvs/types"
+	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 )

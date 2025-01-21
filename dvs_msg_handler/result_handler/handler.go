@@ -1,7 +1,7 @@
 package resulthandler
 
 import (
-	sdktypes "github.com/pelldvs/pellapp-sdk/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"

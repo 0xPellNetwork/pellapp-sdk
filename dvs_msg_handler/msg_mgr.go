@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	result "github.com/pelldvs/pellapp-sdk/dvs_msg_handler/result_handler"
-	"github.com/pelldvs/pellapp-sdk/dvs_msg_handler/tx"
+	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
+	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 
-	sdktypes "github.com/pelldvs/pellapp-sdk/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

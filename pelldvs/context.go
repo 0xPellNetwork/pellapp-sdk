@@ -3,8 +3,8 @@ package pelldvs
 import (
 	"fmt"
 
-	dvstypes "github.com/pelldvs/pellapp-sdk/pelldvs/types"
-	sdktypes "github.com/pelldvs/pellapp-sdk/types"
+	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 func GetDvsRequestValidatedData(ctx sdktypes.Context) (*dvstypes.RequestPostRequestValidatedData, error) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	result "github.com/pelldvs/pellapp-sdk/dvs_msg_handler/result_handler"
-	"github.com/pelldvs/pellapp-sdk/dvs_msg_handler/tx"
+	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
+	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
