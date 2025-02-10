@@ -3,9 +3,8 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	"maps"
 	"reflect"
-	"slices"
+	"sort"
 	"strings"
 
 	"github.com/cosmos/gogoproto/jsonpb"
@@ -101,7 +100,11 @@ func TypedEventToEvent(tev proto.Message) (Event, error) {
 	}
 
 	// sort the keys to ensure the order is always the same
-	keys := slices.Sorted(maps.Keys(attrMap))
+	var keys = make([]string, 0, len(attrMap))
+	for k := range attrMap {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	attrs := make([]avsi.EventAttribute, 0, len(attrMap))
 	for _, k := range keys {
 		v := attrMap[k]

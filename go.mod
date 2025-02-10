@@ -1,23 +1,23 @@
 module github.com/0xPellNetwork/pellapp-sdk
 
-go 1.23.3
+go 1.22.7
 
 require (
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.5.0
-	github.com/0xPellNetwork/pelldvs v0.1.12
+	github.com/0xPellNetwork/pelldvs v0.1.10
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
-	github.com/cosmos/cosmos-sdk v0.50.11
+	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/ethereum/go-ethereum v1.14.12
-	google.golang.org/grpc v1.69.4
+	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.36.3
 )
 
 require (
-	cosmossdk.io/api v0.7.6 // indirect
+	cosmossdk.io/api v0.7.5 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
-	cosmossdk.io/core v0.11.0 // indirect
+	cosmossdk.io/core v0.11.1 // indirect
 	cosmossdk.io/depinject v1.1.0 // indirect
 	cosmossdk.io/math v1.4.0 // indirect
 	cosmossdk.io/store v1.1.1 // indirect
