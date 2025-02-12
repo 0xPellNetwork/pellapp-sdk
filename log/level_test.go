@@ -5,7 +5,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/pelldvs/pellapp-sdk/log"
+	"github.com/0xPellNetwork/pellapp-sdk/log"
 )
 
 func TestParseLogLevel(t *testing.T) {
