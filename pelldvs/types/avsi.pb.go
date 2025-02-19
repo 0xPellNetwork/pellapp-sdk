@@ -190,9 +190,7 @@ func init() {
 	proto.RegisterType((*Result)(nil), "intellix.pelldvs.Result")
 }
 
-func init() {
-	proto.RegisterFile("github.com/0xPellNetwork/pellapp-sdk/pelldvs/avsi.proto", fileDescriptor_ba553b13051d5021)
-}
+func init() { proto.RegisterFile("github.com/0xPellNetwork/pellapp-sdk/pelldvs/avsi.proto", fileDescriptor_ba553b13051d5021) }
 
 var fileDescriptor_ba553b13051d5021 = []byte{
 	// 363 bytes of a gzipped FileDescriptorProto
