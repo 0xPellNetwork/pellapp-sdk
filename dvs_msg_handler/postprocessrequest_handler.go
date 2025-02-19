@@ -1,9 +1,9 @@
 package dvsservermanager
 
 import (
-	result "github.com/pelldvs/pellapp-sdk/dvs_msg_handler/result_handler"
-	"github.com/pelldvs/pellapp-sdk/dvs_msg_handler/tx"
-	sdktypes "github.com/pelldvs/pellapp-sdk/types"
+	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
+	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"

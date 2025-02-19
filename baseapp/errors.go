@@ -3,7 +3,7 @@ package baseapp
 import (
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 
-	errorsmod "github.com/pelldvs/pellapp-sdk/errors"
+	errorsmod "github.com/0xPellNetwork/pellapp-sdk/errors"
 )
 
 func responseProcessDVSRequestWithEvents(err error, events []avsitypes.Event, debug bool) *avsitypes.ResponseProcessDVSRequest {

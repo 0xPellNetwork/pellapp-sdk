@@ -7,7 +7,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/0xPellNetwork/pelldvs-interactor/libs/log"
+	"github.com/0xPellNetwork/pellapp-sdk/log"
 )
 
 func TestFilteredWriter(t *testing.T) {

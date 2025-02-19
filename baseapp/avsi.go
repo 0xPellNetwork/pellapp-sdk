@@ -3,9 +3,9 @@ package baseapp
 import (
 	"context"
 
-	dvsservermanager "github.com/pelldvs/pellapp-sdk/dvs_msg_handler"
-	dvstypes "github.com/pelldvs/pellapp-sdk/pelldvs/types"
-	sdktypes "github.com/pelldvs/pellapp-sdk/types"
+	dvsservermanager "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler"
+	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 )
