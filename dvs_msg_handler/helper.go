@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"sync"
 
-	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
-	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
+
+	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
+	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
 )
 
 type dvsMsgHelper struct {
@@ -18,8 +18,8 @@ type dvsMsgHelper struct {
 	cdc     codec.Codec
 	encoder tx.MsgEncoder
 
-	PostProcessRequestHandler grpc1.Server
-	ProcessRequestHandler     grpc1.Server
+	ResponseHandler grpc1.Server
+	RequestHandler  grpc1.Server
 }
 
 // TODO: use dependency auto inject
@@ -34,32 +34,34 @@ func InitDvsMsgHelper(cdc codec.Codec) {
 	if helper.cdc == nil {
 		helper.cdc = cdc
 	}
+
 	if helper.encoder == nil {
 		helper.encoder = tx.NewDefaultDecoder(helper.cdc)
 	}
 
-	if helper.ProcessRequestHandler == nil {
-		helper.ProcessRequestHandler = NewProcessRequestHandler(helper.encoder, result.NewResultCustomizedMgr())
+	if helper.RequestHandler == nil {
+		helper.RequestHandler = NewRequestHandler(helper.encoder, result.NewResultCustomizedMgr())
 	}
-	if helper.PostProcessRequestHandler == nil {
-		helper.PostProcessRequestHandler = NewPostProcessRequestHandler(helper.encoder, result.NewResultCustomizedMgr())
+
+	if helper.ResponseHandler == nil {
+		helper.ResponseHandler = NewResponseHandler(helper.encoder, result.NewResultCustomizedMgr())
 	}
 }
 
-func GetPostProcessRequestHandler() grpc1.Server {
-	return helper.PostProcessRequestHandler
+func GetResponseHandler() grpc1.Server {
+	return helper.ResponseHandler
 }
 
-func GetProcessRequestHandler() grpc1.Server {
-	return helper.ProcessRequestHandler
+func GetRequestHandler() grpc1.Server {
+	return helper.RequestHandler
 }
 
-func GetPostProcessRequestHandlerSrc() *PostProcessRequestHandler {
-	return helper.PostProcessRequestHandler.(*PostProcessRequestHandler)
+func GetResponseHandlerSrc() *ResponseHandler {
+	return helper.ResponseHandler.(*ResponseHandler)
 }
 
-func GetProcessRequestHandlerSrc() *ProcessRequestHandler {
-	return helper.ProcessRequestHandler.(*ProcessRequestHandler)
+func GetRequestHandlerSrc() *RequestHandler {
+	return helper.RequestHandler.(*RequestHandler)
 }
 
 func EncodeMsgs(msgs ...sdk.Msg) ([]byte, error) {

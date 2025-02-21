@@ -8,12 +8,10 @@ import (
 	"slices"
 	"strings"
 
+	avsi "github.com/0xPellNetwork/pelldvs/avsi/types"
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/gogoproto/jsonpb"
 	"github.com/cosmos/gogoproto/proto"
-
-	"github.com/cosmos/cosmos-sdk/codec"
-
-	avsi "github.com/0xPellNetwork/pelldvs/avsi/types"
 )
 
 type EventManagerI interface {

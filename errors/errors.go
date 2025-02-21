@@ -8,7 +8,6 @@ import (
 const UndefinedCodespace = "undefined"
 
 var (
-
 	// ErrStopIterating is used to break out of an iteration
 	ErrStopIterating = Register(UndefinedCodespace, 2, "stop iterating")
 

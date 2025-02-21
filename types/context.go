@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
-
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
+
+	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 )
 
 type ContextKeyType string
@@ -28,14 +28,22 @@ type Context struct {
 }
 
 // Read-only accessors
-func (c Context) Context() context.Context            { return c.baseCtx }
-func (c Context) EventManager() EventManagerI         { return c.eventManager }
-func (c Context) ChainID() int64                      { return c.chainID }
-func (c Context) Height() int64                       { return c.height }
-func (c Context) GroupNumbers() []uint32              { return c.groupNumbers }
+func (c Context) Context() context.Context { return c.baseCtx }
+
+func (c Context) EventManager() EventManagerI { return c.eventManager }
+
+func (c Context) ChainID() int64 { return c.chainID }
+
+func (c Context) Height() int64 { return c.height }
+
+func (c Context) GroupNumbers() []uint32 { return c.groupNumbers }
+
 func (c Context) GroupThresholdPercentages() []uint32 { return c.groupThresholdPercentages }
-func (c Context) RequestData() []byte                 { return c.requestData }
-func (c Context) Operators() []*avsitypes.Operator    { return c.operators }
+
+func (c Context) RequestData() []byte { return c.requestData }
+
+func (c Context) Operators() []*avsitypes.Operator { return c.operators }
+
 func (c Context) ValidatedResponse() *dvstypes.RequestPostRequestValidatedData {
 	return c.validatedResponse
 }
