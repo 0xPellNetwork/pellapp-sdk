@@ -1,12 +1,11 @@
 package resulthandler
 
 import (
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cosmos/gogoproto/proto"
+
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 type ResultCustomizedMgr struct {

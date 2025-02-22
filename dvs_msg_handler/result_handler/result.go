@@ -1,9 +1,9 @@
 package resulthandler
 
 import (
-	sdk "github.com/0xPellNetwork/pellapp-sdk/types"
-
 	"github.com/cosmos/gogoproto/proto"
+
+	sdk "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 type ResultCustomizedIFace interface {
