@@ -11,6 +11,10 @@ type DVSLogAdapter struct {
 
 func NewDVSLogAdapter(sdkLogger sdklog.Logger) log.Logger {
 	return &DVSLogAdapter{sdkLogger: sdkLogger}
+
+}
+func (a *DVSLogAdapter) Impl() interface{} {
+	return a.sdkLogger
 }
 
 func (a *DVSLogAdapter) Debug(msg string, keyVals ...interface{}) {
@@ -26,5 +30,5 @@ func (a *DVSLogAdapter) Error(msg string, keyVals ...interface{}) {
 }
 
 func (a *DVSLogAdapter) With(keyVals ...interface{}) log.Logger {
-	return &DVSLogAdapter{sdkLogger: a.sdkLogger.With(keyVals...)}
+	return NewDVSLogAdapter(a.sdkLogger.With(keyVals...))
 }
