@@ -1,7 +1,7 @@
-package dvsservermanager
+package handler
 
 import (
-	grpc1 "github.com/cosmos/gogoproto/grpc"
+	cosmosrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/grpc"
 
@@ -18,9 +18,9 @@ type ResponseHandler struct {
 	ResultHandler *result.CustomResultManager // Processes results and generates output data with digest values
 }
 
-// NewResponseHandler creates a new ResponseHandler instance that implements the grpc1.Server interface.
+// NewResponseHandler creates a new ResponseHandler instance that implements the cosmosrpc.Server interface.
 // It initializes the message router manager with the provided encoder and result handler.
-func NewResponseHandler(encoder tx.MsgEncoder, resultHandler *result.CustomResultManager) grpc1.Server {
+func NewResponseHandler(encoder tx.MsgEncoder, resultHandler *result.CustomResultManager) cosmosrpc.Server {
 	return &ResponseHandler{
 		Mgr: NewMsgRouterMgr(
 			encoder,

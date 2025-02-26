@@ -1,11 +1,11 @@
-package dvsservermanager
+package handler
 
 import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpc1 "github.com/cosmos/gogoproto/grpc"
+	cosmosrpc "github.com/cosmos/gogoproto/grpc"
 
 	result "github.com/0xPellNetwork/pellapp-sdk/handler/result"
 	"github.com/0xPellNetwork/pellapp-sdk/handler/tx"
@@ -21,8 +21,8 @@ type DvsMsgHandlers struct {
 
 // Handlers contains GRPC servers for handling requests and responses
 type Handlers struct {
-	ResponseHandler grpc1.Server
-	RequestHandler  grpc1.Server
+	ResponseHandler cosmosrpc.Server
+	RequestHandler  cosmosrpc.Server
 }
 
 // Init initializes the DvsMsgHandlers with codec and creates default handlers if not set

@@ -1,4 +1,4 @@
-package dvsservermanager
+package handler
 
 import (
 	"context"

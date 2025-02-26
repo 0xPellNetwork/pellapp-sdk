@@ -3,15 +3,15 @@ package result
 import (
 	"github.com/cosmos/gogoproto/proto"
 
-	sdk "github.com/0xPellNetwork/pellapp-sdk/types"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 // Result extends the sdk.Result structure by adding custom data and digest fields
 // Used to carry additional information when processing dvs results
 type Result struct {
-	*sdk.Result         // Embedded original SDK result
-	CustomData   []byte // Custom data, can be used to store application-specific result data
-	CustomDigest []byte // Custom digest, can be used for verification or indexing purposes
+	*sdktypes.Result        // Embedded original SDK result
+	CustomData       []byte // Custom data, can be used to store application-specific result data
+	CustomDigest     []byte // Custom digest, can be used for verification or indexing purposes
 }
 
 // CustomResultHandler defines an interface for handling custom result data

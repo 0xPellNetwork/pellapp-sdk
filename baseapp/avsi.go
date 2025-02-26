@@ -5,7 +5,7 @@ import (
 
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 
-	errorsmod "github.com/0xPellNetwork/pellapp-sdk/errors"
+	sdkerrors "github.com/0xPellNetwork/pellapp-sdk/errors"
 	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
@@ -77,7 +77,7 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 // responseProcessDVSRequestWithEvents creates a DVS request response with error information and events.
 // Used when an error occurs during request processing to format the error response.
 func responseProcessDVSRequestWithEvents(err error, events []avsitypes.Event, debug bool) *avsitypes.ResponseProcessDVSRequest {
-	space, code, log := errorsmod.AVSIInfo(err, debug)
+	space, code, log := sdkerrors.AVSIInfo(err, debug)
 	return &avsitypes.ResponseProcessDVSRequest{
 		Code:      code,
 		Log:       log,
@@ -89,7 +89,7 @@ func responseProcessDVSRequestWithEvents(err error, events []avsitypes.Event, de
 // responseProcessDVSResponseWithEvents creates a DVS response with error information and events.
 // Used when an error occurs during response processing to format the error response.
 func responseProcessDVSResponseWithEvents(err error, events []avsitypes.Event, debug bool) *avsitypes.ResponseProcessDVSResponse {
-	space, code, log := errorsmod.AVSIInfo(err, debug)
+	space, code, log := sdkerrors.AVSIInfo(err, debug)
 	return &avsitypes.ResponseProcessDVSResponse{
 		Code:      code,
 		Log:       log,
