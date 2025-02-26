@@ -3,10 +3,10 @@ package pelldvs
 import (
 	"fmt"
 
-	aggRPC "github.com/0xPellNetwork/pelldvs/aggregator/rpc"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
+	"github.com/0xPellNetwork/pelldvs/aggregator/rpc"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/0xPellNetwork/pelldvs/config"
-	"github.com/0xPellNetwork/pelldvs/libs/log"
 	"github.com/0xPellNetwork/pelldvs/node"
 	"github.com/0xPellNetwork/pelldvs/p2p"
 	"github.com/0xPellNetwork/pelldvs/privval"
@@ -15,7 +15,7 @@ import (
 )
 
 type Node struct {
-	agg     *aggRPC.RPCClientAggregator
+	agg     *rpc.RPCClientAggregator
 	nodeCfg *config.Config
 	logger  log.Logger
 	node    *node.Node
@@ -40,7 +40,7 @@ func NewNode(
 	}
 
 	var err error
-	n.agg, err = aggRPC.NewRPCClientAggregator(nodeCfg.Pell.AggregatorRPCURL)
+	n.agg, err = rpc.NewRPCClientAggregator(nodeCfg.Pell.AggregatorRPCURL)
 	if err != nil {
 		logger.Error("Failed to create aggregator client", "error", err)
 		return nil, fmt.Errorf("failed to create aggregator client: %v", err)

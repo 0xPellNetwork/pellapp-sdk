@@ -5,7 +5,7 @@ import (
 )
 
 func NewValidatedResponse(validatedData *avsitypes.DVSResponse) *RequestPostRequestValidatedData {
-	var nonSignerStakeIndices []*NonSignerStakeIndice
+	var nonSignerStakeIndices = make([]*NonSignerStakeIndice, 0)
 	for _, nonSignerStakeIndice := range validatedData.NonSignerStakeIndices {
 		nonSignerStakeIndices = append(nonSignerStakeIndices, &NonSignerStakeIndice{
 			NonSignerStakeIndice: nonSignerStakeIndice.NonSignerStakeIndice,
