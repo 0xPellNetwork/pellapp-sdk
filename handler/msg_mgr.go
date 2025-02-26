@@ -9,11 +9,12 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"google.golang.org/grpc"
 
-	result "github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/result_handler"
-	"github.com/0xPellNetwork/pellapp-sdk/dvs_msg_handler/tx"
+	result "github.com/0xPellNetwork/pellapp-sdk/handler/result"
+	"github.com/0xPellNetwork/pellapp-sdk/handler/tx"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
+// MsgHandler is a function type that handles SDK messages and returns a result or error
 type MsgHandler func(ctx sdktypes.Context, msg sdk.Msg) (*result.Result, error)
 
 // MsgRouterMgr defines router for dvs server
@@ -21,12 +22,13 @@ type MsgRouterMgr struct {
 	Router                 map[string]MsgHandler
 	encoder                tx.MsgEncoder
 	findRouterTypeNameFunc func(msg sdk.Msg) string // ONLY FOR router dispatcher; register use sdk.MsgTypeURL
-	resultHandler          *result.ResultCustomizedMgr
+	resultHandler          *result.CustomResultManager
 }
 
+// NewMsgRouterMgr creates a new message router manager with the provided encoder and result handler
 func NewMsgRouterMgr(
 	encoder tx.MsgEncoder,
-	resultHandler *result.ResultCustomizedMgr,
+	resultHandler *result.CustomResultManager,
 ) *MsgRouterMgr {
 	return &MsgRouterMgr{
 		Router:  map[string]MsgHandler{},
@@ -38,8 +40,8 @@ func NewMsgRouterMgr(
 	}
 }
 
-// RegisterMsgHandler
-// inspire by github.com/cosmos/cosmos-sdk@v0.50.9/baseapp/msg_service_router.go:120 MsgServiceRouter.registerMsgServiceHandler
+// RegisterMsgHandler registers a gRPC service method as a message handler
+// Inspired by github.com/cosmos/cosmos-sdk@v0.50.9/baseapp/msg_service_router.go:120 MsgServiceRouter.registerMsgServiceHandler
 func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.MethodDesc, handler interface{}) error {
 	fqMethod := fmt.Sprintf("/%s/%s", sd.ServiceName, method.MethodName)
 
@@ -89,10 +91,12 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 	return nil
 }
 
+// GetHandler returns the handler for a specific message type
 func (m *MsgRouterMgr) GetHandler(msg sdk.Msg) MsgHandler {
 	return m.Router[m.findRouterTypeNameFunc(msg)]
 }
 
+// GetHandlerByData decodes the message data and returns the appropriate handler
 func (m *MsgRouterMgr) GetHandlerByData(data []byte) MsgHandler {
 	msgTx, err := m.encoder.Decode(data)
 	if err != nil {
@@ -108,6 +112,7 @@ func (m *MsgRouterMgr) GetHandlerByData(data []byte) MsgHandler {
 	return nil
 }
 
+// HandleByData decodes the message data, finds the appropriate handler, and processes the message
 func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.Result, error) {
 	msgTx, err := m.encoder.Decode(data)
 	if err != nil {
@@ -124,13 +129,15 @@ func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.
 	return nil, fmt.Errorf("no handler found for %s", msgTx.GetMsgs())
 }
 
+// noopDecoder is a no-operation decoder used during handler registration
 func noopDecoder(_ any) error { return nil }
 
+// noopInterceptor is a no-operation interceptor used during handler registration
 func noopInterceptor(_ context.Context, _ any, _ *grpc.UnaryServerInfo, _ grpc.UnaryHandler) (any, error) {
 	return nil, nil
 }
 
-// RegisterServiceRouter helper for registering service router
+// RegisterServiceRouter is a helper function for registering all methods of a gRPC service
 func RegisterServiceRouter(routerMgr *MsgRouterMgr, sd *grpc.ServiceDesc, handler any) {
 	for _, method := range sd.Methods {
 		if err := routerMgr.RegisterMsgHandler(sd, method, handler); err != nil {
