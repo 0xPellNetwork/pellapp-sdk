@@ -13,6 +13,7 @@ func NewDVSLogAdapter(sdkLogger sdklog.Logger) log.Logger {
 	return &DVSLogAdapter{sdkLogger: sdkLogger}
 
 }
+
 func (a *DVSLogAdapter) Impl() interface{} {
 	return a.sdkLogger
 }
