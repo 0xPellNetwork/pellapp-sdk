@@ -8,7 +8,7 @@ on:
 jobs:
   generate-check:
     name: Verify
-    runs-on: ubuntu-latest
+    runs-on: [ "self-hosted", "Linux", "X64", "ci" ]
     env:
       GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
