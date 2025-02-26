@@ -3,10 +3,10 @@ package pelldvs
 import (
 	"fmt"
 
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 	aggRPC "github.com/0xPellNetwork/pelldvs/aggregator/rpc"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/0xPellNetwork/pelldvs/config"
-	"github.com/0xPellNetwork/pelldvs/libs/log"
 	"github.com/0xPellNetwork/pelldvs/node"
 	"github.com/0xPellNetwork/pelldvs/p2p"
 	"github.com/0xPellNetwork/pelldvs/privval"
