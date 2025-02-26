@@ -35,8 +35,9 @@ func AVSIInfo(err error, debug bool) (codespace string, code uint32, log string)
 		encode = debugErrEncoder
 	}
 
-	code, space := avsiInfo(err)
-	return space, code, encode(err)
+	code, codespace = avsiInfo(err)
+	log = encode(err)
+	return
 }
 
 // The debugErrEncoder encodes the error with a stacktrace.
@@ -78,8 +79,10 @@ func errIsNil(err error) bool {
 	if err == nil {
 		return true
 	}
+
 	if val := reflect.ValueOf(err); val.Kind() == reflect.Ptr {
 		return val.IsNil()
 	}
+
 	return false
 }

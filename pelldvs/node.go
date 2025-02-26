@@ -25,6 +25,7 @@ func (n *Node) Start() error {
 	if n.node == nil {
 		return fmt.Errorf("node is nil")
 	}
+
 	return n.node.Start()
 }
 

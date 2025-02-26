@@ -12,5 +12,6 @@ func GetDvsRequestValidatedData(ctx sdktypes.Context) (*dvstypes.RequestPostRequ
 	if validatedData == nil {
 		return nil, fmt.Errorf("not DvsRequestData found")
 	}
+
 	return validatedData, nil
 }
