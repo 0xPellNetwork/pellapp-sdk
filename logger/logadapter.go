@@ -2,7 +2,7 @@ package logger
 
 import (
 	sdklog "cosmossdk.io/log"
-	"github.com/0xPellNetwork/pelldvs/libs/log"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 )
 
 type DVSLogAdapter struct {
