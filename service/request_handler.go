@@ -1,12 +1,12 @@
-package handler
+package service
 
 import (
 	cosmosrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/cosmos/gogoproto/proto"
 	"google.golang.org/grpc"
 
-	result "github.com/0xPellNetwork/pellapp-sdk/handler/result"
-	"github.com/0xPellNetwork/pellapp-sdk/handler/tx"
+	"github.com/0xPellNetwork/pellapp-sdk/service/result"
+	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 

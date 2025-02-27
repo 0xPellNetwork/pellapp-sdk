@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"

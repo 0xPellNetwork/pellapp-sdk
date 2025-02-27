@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	handler "github.com/0xPellNetwork/pellapp-sdk/handler"
+	handler "github.com/0xPellNetwork/pellapp-sdk/service"
 )
 
 // BaseApp is the main application structure that serves as the foundation

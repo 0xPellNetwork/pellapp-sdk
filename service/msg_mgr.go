@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"google.golang.org/grpc"
 
-	result "github.com/0xPellNetwork/pellapp-sdk/handler/result"
-	"github.com/0xPellNetwork/pellapp-sdk/handler/tx"
+	"github.com/0xPellNetwork/pellapp-sdk/service/result"
+	"github.com/0xPellNetwork/pellapp-sdk/service/tx"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
