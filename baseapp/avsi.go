@@ -12,7 +12,7 @@ import (
 
 func (app *BaseApp) Info(ctx context.Context, info *avsitypes.RequestInfo) (*avsitypes.ResponseInfo, error) {
 	return &avsitypes.ResponseInfo{
-		Version:         "1.0.0",
+		Version:         app.version,
 		LastBlockHeight: 0,
 	}, nil
 }

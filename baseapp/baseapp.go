@@ -1,12 +1,16 @@
 package baseapp
 
 import (
+	"github.com/0xPellNetwork/pellapp-sdk/utils/tx"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 )
 
 type BaseApp struct {
-	logger log.Logger
+	// application's version string
+	version string
+	logger  log.Logger
 
+	msgServiceRouter *MsgServiceRouter
 	// trace set will return full stack traces for errors in ABCI Log field
 	trace bool
 
@@ -17,9 +21,11 @@ type BaseApp struct {
 
 func NewBaseApp(
 	logger log.Logger,
+	encoder tx.MsgEncoder,
 ) *BaseApp {
 	app := &BaseApp{
-		logger: logger,
+		logger:           logger,
+		msgServiceRouter: NewMsgServiceRouter(encoder),
 	}
 	return app
 }

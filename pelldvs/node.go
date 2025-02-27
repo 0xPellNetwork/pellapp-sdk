@@ -70,6 +70,5 @@ func NewNode(
 }
 
 func (n *Node) GetLocalClient() *rpclocal.Local {
-
 	return rpclocal.New(n.node)
 }
