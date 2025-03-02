@@ -29,21 +29,16 @@ func NewRequestHandler(encoder tx.MsgEncoder, resultHandler *result.CustomResult
 }
 
 // RegisterService registers a gRPC service to the router manager
-func (p *RequestHandler) RegisterService(sd *grpc.ServiceDesc, handler interface{}) {
+func (p *RequestHandler) RegisterService(sd *grpc.ServiceDesc, handler any) {
 	RegisterServiceRouter(p.Mgr, sd, handler)
 }
 
-// InvokeRouterRawByData invokes the router handler with raw byte data
-func (p *RequestHandler) InvokeRouterRawByData(ctx sdktypes.Context, data []byte) (*result.Result, error) {
-	res, err := p.Mgr.HandleByData(ctx, data)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
+// InvokeByMsgData invokes the router handler with raw byte data
+func (p *RequestHandler) InvokeByMsgData(ctx sdktypes.Context, data []byte) (*result.Result, error) {
+	return p.Mgr.HandleByData(ctx, data)
 }
 
-// RegisterResultHandler registers a custom handler for a specific message type
-func (p *RequestHandler) RegisterResultHandler(msg proto.Message, handler result.CustomResultHandler) {
+// RegisterResultMsgExtractor registers a custom handler for a specific message type
+func (p *RequestHandler) RegisterResultMsgExtractor(msg proto.Message, handler result.ResultMsgExtractor) {
 	p.ResultHandler.RegisterCustomizedFunc(msg, handler)
 }

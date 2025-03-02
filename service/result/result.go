@@ -6,20 +6,20 @@ import (
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
-// Result extends the sdk.Result structure by adding custom data and digest fields
-// Used to carry additional information when processing dvs results
+// Result extends the sdk.Result structure by adding custom data and digest fields.
+// It is used to carry additional information when processing DVS results.
 type Result struct {
 	*sdktypes.Result        // Embedded original SDK result
-	CustomData       []byte // Custom data, can be used to store application-specific result data
-	CustomDigest     []byte // Custom digest, can be used for verification or indexing purposes
+	CustomData       []byte // Custom data for storing application-specific result information
+	CustomDigest     []byte // Custom digest for verification or indexing purposes
 }
 
-// CustomResultHandler defines an interface for handling custom result data
-// Types implementing this interface can generate custom data and digests from a proto.Message
-type CustomResultHandler interface {
-	// GetData gets custom data from the given proto.Message
+// ResultMsgExtractor defines an interface for handling custom result data.
+// Types implementing this interface can generate custom data and digests from a proto.Message.
+type ResultMsgExtractor interface {
+	// GetData extracts custom data from the given proto.Message
 	GetData(proto.Message) ([]byte, error)
 
-	// GetDigest gets a custom digest from the given proto.Message
+	// GetDigest generates a custom digest from the given proto.Message
 	GetDigest(proto.Message) ([]byte, error)
 }

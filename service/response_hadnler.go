@@ -32,7 +32,7 @@ func NewResponseHandler(encoder tx.MsgEncoder, resultHandler *result.CustomResul
 
 // RegisterService registers a gRPC service with the ResponseHandler.
 // This allows the handler to route incoming requests to the appropriate service implementation.
-func (p *ResponseHandler) RegisterService(sd *grpc.ServiceDesc, handler interface{}) {
+func (p *ResponseHandler) RegisterService(sd *grpc.ServiceDesc, handler any) {
 	RegisterServiceRouter(p.Mgr, sd, handler)
 }
 
@@ -44,6 +44,6 @@ func (p *ResponseHandler) InvokeRouterRawByData(ctx sdktypes.Context, requestDat
 }
 
 // RegisterResultHandler registers a custom handler for processing results of a specific message type.
-func (p *ResponseHandler) RegisterResultHandler(msg proto.Message, handler result.CustomResultHandler) {
+func (p *ResponseHandler) RegisterResultHandler(msg proto.Message, handler result.ResultMsgExtractor) {
 	p.ResultHandler.RegisterCustomizedFunc(msg, handler)
 }
