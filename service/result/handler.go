@@ -12,21 +12,21 @@ import (
 // It allows registering specialized handlers for processing specific message types
 // and extracting custom data and digests from them.
 type CustomResultManager struct {
-	customHandlers map[string]CustomResultHandler
+	customHandlers map[string]ResultMsgExtractor
 }
 
 // NewCustomResultManager creates a new instance of CustomResultManager with
 // an initialized map of custom handlers.
 func NewCustomResultManager() *CustomResultManager {
 	return &CustomResultManager{
-		customHandlers: make(map[string]CustomResultHandler),
+		customHandlers: make(map[string]ResultMsgExtractor),
 	}
 }
 
 // RegisterCustomizedFunc registers a custom result handler for a specific message type.
 // The message type is determined by its protobuf URL, and the handler will be called
 // when processing results of this message type.
-func (r *CustomResultManager) RegisterCustomizedFunc(t proto.Message, f CustomResultHandler) {
+func (r *CustomResultManager) RegisterCustomizedFunc(t proto.Message, f ResultMsgExtractor) {
 	r.customHandlers[sdk.MsgTypeURL(t)] = f
 }
 

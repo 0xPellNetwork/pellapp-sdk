@@ -46,7 +46,7 @@ func (h *DvsMsgHandlers) ResponseHandlerInvokeRouterRawByData(sdkCtx sdktypes.Co
 
 // RequestHandlerInvokeRouterRawByData routes raw byte data to the request handler
 func (h *DvsMsgHandlers) RequestHandlerInvokeRouterRawByData(sdkCtx sdktypes.Context, data []byte) (*result.Result, error) {
-	return h.handlers.RequestHandler.(*RequestHandler).InvokeRouterRawByData(sdkCtx, data)
+	return h.handlers.RequestHandler.(*RequestHandler).InvokeByMsgData(sdkCtx, data)
 }
 
 // EncodeMsgs encodes SDK messages into bytes using the configured encoder

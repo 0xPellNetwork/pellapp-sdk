@@ -75,7 +75,7 @@ func NewContext(baseCtx context.Context) Context {
 	}
 }
 
-func (c Context) WithValue(key, value interface{}) Context {
+func (c Context) WithValue(key, value any) Context {
 	c.baseCtx = context.WithValue(c.baseCtx, key, value)
 	return c
 }

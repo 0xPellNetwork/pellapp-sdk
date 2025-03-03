@@ -117,7 +117,7 @@ func Wrap(err error, description string) error {
 //
 // This function works like Wrap function with additional functionality of
 // formatting the input as specified.
-func Wrapf(err error, format string, args ...interface{}) error {
+func Wrapf(err error, format string, args ...any) error {
 	desc := fmt.Sprintf(format, args...)
 	return Wrap(err, desc)
 }

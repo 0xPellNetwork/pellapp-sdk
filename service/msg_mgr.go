@@ -17,12 +17,17 @@ import (
 // MsgHandler is a function type that handles SDK messages and returns a result or error
 type MsgHandler func(ctx sdktypes.Context, msg sdk.Msg) (*result.Result, error)
 
+// defaultMsgKeyFunc is a default function for getting the message key
+func defaultMsgKeyFunc(msg sdk.Msg) string {
+	return sdk.MsgTypeURL(msg)
+}
+
 // MsgRouterMgr defines router for dvs server
 type MsgRouterMgr struct {
-	Router                 map[string]MsgHandler
-	encoder                tx.MsgEncoder
-	findRouterTypeNameFunc func(msg sdk.Msg) string // ONLY FOR router dispatcher; register use sdk.MsgTypeURL
-	resultHandler          *result.CustomResultManager
+	Router        map[string]MsgHandler
+	encoder       tx.MsgEncoder
+	calcMsgKey    func(msg sdk.Msg) string // ONLY FOR router dispatcher; register use sdk.MsgTypeURL
+	resultHandler *result.CustomResultManager
 }
 
 // NewMsgRouterMgr creates a new message router manager with the provided encoder and result handler
@@ -31,18 +36,16 @@ func NewMsgRouterMgr(
 	resultHandler *result.CustomResultManager,
 ) *MsgRouterMgr {
 	return &MsgRouterMgr{
-		Router:  map[string]MsgHandler{},
-		encoder: encoder,
-		findRouterTypeNameFunc: func(msg sdk.Msg) string {
-			return sdk.MsgTypeURL(msg)
-		},
+		Router:        map[string]MsgHandler{},
+		encoder:       encoder,
+		calcMsgKey:    defaultMsgKeyFunc,
 		resultHandler: resultHandler,
 	}
 }
 
 // RegisterMsgHandler registers a gRPC service method as a message handler
 // Inspired by github.com/cosmos/cosmos-sdk@v0.50.9/baseapp/msg_service_router.go:120 MsgServiceRouter.registerMsgServiceHandler
-func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.MethodDesc, handler interface{}) error {
+func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.MethodDesc, handler any) error {
 	fqMethod := fmt.Sprintf("/%s/%s", sd.ServiceName, method.MethodName)
 
 	var requestTypeName string
@@ -92,24 +95,26 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 }
 
 // GetHandler returns the handler for a specific message type
-func (m *MsgRouterMgr) GetHandler(msg sdk.Msg) MsgHandler {
-	return m.Router[m.findRouterTypeNameFunc(msg)]
+func (m *MsgRouterMgr) GetHandler(msg sdk.Msg) (MsgHandler, bool) {
+	handler, found := m.Router[m.calcMsgKey(msg)]
+	return handler, found
 }
 
 // GetHandlerByData decodes the message data and returns the appropriate handler
-func (m *MsgRouterMgr) GetHandlerByData(data []byte) MsgHandler {
+func (m *MsgRouterMgr) GetHandlerByData(data []byte) (MsgHandler, error) {
 	msgTx, err := m.encoder.Decode(data)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("failed to decode message: %w", err)
 	}
+
 	for _, msg := range msgTx.GetMsgs() {
-		msgType := m.findRouterTypeNameFunc(msg)
+		msgType := m.calcMsgKey(msg)
 		if handler, ok := m.Router[msgType]; ok {
-			return handler
+			return handler, nil
 		}
 	}
 
-	return nil
+	return nil, fmt.Errorf("no handler found for message types in transaction")
 }
 
 // HandleByData decodes the message data, finds the appropriate handler, and processes the message
@@ -120,8 +125,8 @@ func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.
 	}
 
 	for _, msg := range msgTx.GetMsgs() {
-		msgType := m.findRouterTypeNameFunc(msg)
-		if handler, ok := m.Router[msgType]; ok {
+		handler, found := m.GetHandler(msg)
+		if found {
 			return handler(ctx, msg)
 		}
 	}
