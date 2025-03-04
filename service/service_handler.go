@@ -14,15 +14,9 @@ import (
 
 // DvsMsgHandlers handles message encoding/decoding and routing for DVS services
 type DvsMsgHandlers struct {
-	cdc      codec.Codec
-	encoder  tx.MsgEncoder
-	handlers Handlers
-}
-
-// Handlers contains GRPC servers for handling requests and responses
-type Handlers struct {
-	ResponseHandler cosmosrpc.Server
-	RequestHandler  cosmosrpc.Server
+	cdc       codec.Codec
+	encoder   tx.MsgEncoder
+	processor cosmosrpc.Server
 }
 
 // Init initializes the DvsMsgHandlers with codec and creates default handlers if not set
@@ -30,23 +24,15 @@ func NewDvsMsgHandlers(cdc codec.Codec) *DvsMsgHandlers {
 	encoder := tx.NewDefaultDecoder(cdc)
 
 	return &DvsMsgHandlers{
-		cdc:     cdc,
-		encoder: encoder,
-		handlers: Handlers{
-			ResponseHandler: NewResponseHandler(encoder, result.NewCustomResultManager()),
-			RequestHandler:  NewRequestHandler(encoder, result.NewCustomResultManager()),
-		},
+		cdc:       cdc,
+		encoder:   encoder,
+		processor: NewProcessor(encoder, result.NewCustomResultManager()),
 	}
 }
 
-// ResponseHandlerInvokeRouterRawByData routes raw byte data to the response handler
-func (h *DvsMsgHandlers) ResponseHandlerInvokeRouterRawByData(sdkCtx sdktypes.Context, data []byte) (*result.Result, error) {
-	return h.handlers.ResponseHandler.(*ResponseHandler).InvokeRouterRawByData(sdkCtx, data)
-}
-
-// RequestHandlerInvokeRouterRawByData routes raw byte data to the request handler
-func (h *DvsMsgHandlers) RequestHandlerInvokeRouterRawByData(sdkCtx sdktypes.Context, data []byte) (*result.Result, error) {
-	return h.handlers.RequestHandler.(*RequestHandler).InvokeByMsgData(sdkCtx, data)
+// InvokeByMsgData routes raw byte data to the processor
+func (h *DvsMsgHandlers) InvokeByMsgData(sdkCtx sdktypes.Context, data []byte) (*result.Result, error) {
+	return h.processor.(*Processor).InvokeByMsgData(sdkCtx, data)
 }
 
 // EncodeMsgs encodes SDK messages into bytes using the configured encoder

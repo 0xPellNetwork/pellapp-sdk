@@ -39,7 +39,7 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 		WithGroupThresholdPercentages(req.Request.GroupThresholdPercentages).
 		WithOperator(req.Operator)
 
-	res, err := app.handlers.RequestHandlerInvokeRouterRawByData(sdkCtx, req.Request.Data)
+	res, err := app.msgHandler.InvokeByMsgData(sdkCtx, req.Request.Data)
 	if err != nil {
 		app.logger.Error("process request error", "err", err)
 		return responseProcessDVSRequestWithEvents(err, sdktypes.MarkEventsToIndex(res.Events, app.indexEvents), app.trace), err
@@ -65,7 +65,7 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
 		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse))
 
-	res, err := app.handlers.ResponseHandlerInvokeRouterRawByData(sdkCtx, req.DvsRequest.Data)
+	res, err := app.msgHandler.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
 	if err != nil {
 		app.logger.Error("post request error", "err", err)
 		return responseProcessDVSResponseWithEvents(err, sdktypes.MarkEventsToIndex(res.Events, app.indexEvents), app.trace), err
