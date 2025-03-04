@@ -1,7 +1,7 @@
 package baseapp
 
 import (
-	"github.com/0xPellNetwork/pelldvs/libs/log"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
