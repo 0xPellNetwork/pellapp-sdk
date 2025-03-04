@@ -35,6 +35,11 @@ func (h *DvsMsgHandlers) InvokeByMsgData(sdkCtx sdktypes.Context, data []byte) (
 	return h.processor.(*Processor).InvokeByMsgData(sdkCtx, data)
 }
 
+// GetProcessor returns the processor
+func (h *DvsMsgHandlers) GetProcessor() *Processor {
+	return h.processor.(*Processor)
+}
+
 // EncodeMsgs encodes SDK messages into bytes using the configured encoder
 func (h *DvsMsgHandlers) EncodeMsgs(msgs ...sdk.Msg) ([]byte, error) {
 	return h.encoder.EncodeMsgs(msgs...)
