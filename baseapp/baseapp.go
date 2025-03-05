@@ -1,11 +1,11 @@
 package baseapp
 
 import (
-	"github.com/0xPellNetwork/pelldvs/libs/log"
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	handler "github.com/0xPellNetwork/pellapp-sdk/service"
+	"github.com/0xPellNetwork/pellapp-sdk/service"
 )
 
 // BaseApp is the main application structure that serves as the foundation
@@ -23,7 +23,7 @@ type BaseApp struct {
 	// which informs CometBFT what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
-	handlers *handler.DvsMsgHandlers
+	msgRouter *service.MsgRouter
 }
 
 // NewBaseApp creates and initializes a new BaseApp instance with the provided parameters.
@@ -35,9 +35,9 @@ func NewBaseApp(
 	opts ...func(*BaseApp),
 ) *BaseApp {
 	app := &BaseApp{
-		name:     name,
-		logger:   logger,
-		handlers: handler.NewDvsMsgHandlers(cdc),
+		name:      name,
+		logger:    logger,
+		msgRouter: service.NewMsgRouter(cdc),
 	}
 
 	// apply options
@@ -46,4 +46,8 @@ func NewBaseApp(
 	}
 
 	return app
+}
+
+func (app *BaseApp) GetMsgRouter() *service.MsgRouter {
+	return app.msgRouter
 }
