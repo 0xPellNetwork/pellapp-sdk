@@ -47,3 +47,7 @@ func NewBaseApp(
 
 	return app
 }
+
+func (app *BaseApp) GetMsgRouter() *handler.MsgRouter {
+	return app.msgRouter
+}
