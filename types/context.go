@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/0xPellNetwork/pelldvs-libs/log"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 
 	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
@@ -25,6 +26,7 @@ type Context struct {
 	requestData               []byte
 	operators                 []*avsitypes.Operator
 	validatedResponse         *dvstypes.RequestPostRequestValidatedData
+	logger                    log.Logger
 }
 
 // Read-only accessors
@@ -73,6 +75,11 @@ func NewContext(baseCtx context.Context) Context {
 		baseCtx:      baseCtx,
 		eventManager: NewEventManager(),
 	}
+}
+
+func (c Context) WithLogger(logger log.Logger) Context {
+	c.logger = logger
+	return c
 }
 
 func (c Context) WithValue(key, value any) Context {

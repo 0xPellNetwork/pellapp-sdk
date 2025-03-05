@@ -37,7 +37,8 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 		WithGroupNumbers(req.Request.GroupNumbers).
 		WithRequestData(req.Request.Data).
 		WithGroupThresholdPercentages(req.Request.GroupThresholdPercentages).
-		WithOperator(req.Operator)
+		WithOperator(req.Operator).
+		WithLogger(app.logger)
 
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.Request.Data)
 	if err != nil {
@@ -63,7 +64,8 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithGroupNumbers(req.DvsRequest.GroupNumbers).
 		WithRequestData(req.DvsRequest.Data).
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
-		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse))
+		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse)).
+		WithLogger(app.logger)
 
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
 	if err != nil {
