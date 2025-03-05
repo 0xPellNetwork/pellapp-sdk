@@ -23,7 +23,7 @@ type BaseApp struct {
 	// which informs CometBFT what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
-	msgHandler *handler.DvsMsgHandlers
+	msgRouter *handler.MsgRouter
 }
 
 // NewBaseApp creates and initializes a new BaseApp instance with the provided parameters.
@@ -35,9 +35,9 @@ func NewBaseApp(
 	opts ...func(*BaseApp),
 ) *BaseApp {
 	app := &BaseApp{
-		name:       name,
-		logger:     logger,
-		msgHandler: handler.NewDvsMsgHandlers(cdc),
+		name:      name,
+		logger:    logger,
+		msgRouter: handler.NewMsgRouter(cdc),
 	}
 
 	// apply options
