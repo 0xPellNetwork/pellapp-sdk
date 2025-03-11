@@ -95,8 +95,13 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 }
 
 // GetHandler returns the handler for a specific message type
-func (m *MsgRouterMgr) GetHandler(msg sdk.Msg) (MsgHandler, bool) {
-	handler, found := m.Router[m.calcMsgKey(msg)]
+func (m *MsgRouterMgr) GetHandler(ctx sdktypes.Context, msg sdk.Msg) (MsgHandler, bool) {
+	msgKey := m.calcMsgKey(msg)
+	if ctx.ValidatedResponse() != nil {
+		msgKey = msgKey + "Resp"
+	}
+
+	handler, found := m.Router[msgKey]
 	return handler, found
 }
 
@@ -125,7 +130,7 @@ func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.
 	}
 
 	for _, msg := range msgTx.GetMsgs() {
-		handler, found := m.GetHandler(msg)
+		handler, found := m.GetHandler(ctx, msg)
 		if found {
 			return handler(ctx, msg)
 		}
