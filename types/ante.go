@@ -1,16 +1,12 @@
 package types
 
-import (
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-)
-
 // AnteHandler authenticates transactions, before their internal messages are handled.
 // If newCtx.IsZero(), ctx is used instead.
-type AnteHandler func(ctx Context, tx sdktypes.Tx) (newCtx Context, err error)
+type AnteHandler func(ctx Context, msg any) (newCtx Context, err error)
 
 // AnteDecorator wraps the next AnteHandler to perform custom pre-processing.
 type AnteDecorator interface {
-	AnteHandle(ctx Context, tx sdktypes.Tx, next AnteHandler) (newCtx Context, err error)
+	AnteHandle(ctx Context, msg any, next AnteHandler) (newCtx Context, err error)
 }
 
 // ChainAnteDecorators ChainDecorator chains AnteDecorators together with each AnteDecorator
@@ -34,13 +30,14 @@ func ChainAnteDecorators(chain ...AnteDecorator) AnteHandler {
 
 	handlerChain := make([]AnteHandler, len(chain)+1)
 	// set the terminal AnteHandler decorator
-	handlerChain[len(chain)] = func(ctx Context, tx sdktypes.Tx) (Context, error) {
+	handlerChain[len(chain)] = func(ctx Context, msg any) (Context, error) {
 		return ctx, nil
 	}
-	for i := 0; i < len(chain); i++ {
+
+	for i := range chain {
 		ii := i
-		handlerChain[ii] = func(ctx Context, tx sdktypes.Tx) (Context, error) {
-			return chain[ii].AnteHandle(ctx, tx, handlerChain[ii+1])
+		handlerChain[ii] = func(ctx Context, msg any) (Context, error) {
+			return chain[ii].AnteHandle(ctx, msg, handlerChain[ii+1])
 		}
 	}
 

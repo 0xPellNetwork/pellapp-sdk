@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 
 	"github.com/0xPellNetwork/pellapp-sdk/service"
+	"github.com/0xPellNetwork/pellapp-sdk/types"
 	ptypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -19,13 +20,15 @@ type BaseApp struct {
 	// trace set will return full stack traces for errors in ABCI Log field
 	trace bool
 
+	// flag for sealing options and parameters to a BaseApp
+	sealed bool
 	// indexEvents defines the set of events in the form {eventType}.{attributeKey},
 	// which informs CometBFT what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
 	msgRouter *service.MsgRouter
 
-	anteHandler *ptypes.AnteHandler
+	anteHandler ptypes.AnteHandler
 }
 
 // NewBaseApp creates and initializes a new BaseApp instance with the provided parameters.
@@ -52,4 +55,20 @@ func NewBaseApp(
 
 func (app *BaseApp) GetMsgRouter() *service.MsgRouter {
 	return app.msgRouter
+}
+
+func (app *BaseApp) SetAnteHandler(ah types.AnteHandler) {
+	if app.sealed {
+		panic("Cannot call SetAnteHandler: baseapp already sealed")
+	}
+
+	app.anteHandler = ah
+}
+
+func (app *BaseApp) Sealed() {
+	if app.sealed {
+		panic("Cannot call SetAnteHandler: baseapp already sealed")
+	}
+
+	app.sealed = true
 }

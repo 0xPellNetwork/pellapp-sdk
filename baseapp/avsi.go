@@ -40,6 +40,11 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 		WithOperator(req.Operator).
 		WithLogger(app.logger)
 
+	var err error
+	if sdkCtx, err = app.ProcessAnteHandler(sdkCtx, req); err != nil {
+		return nil, err
+	}
+
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.Request.Data)
 	if err != nil {
 		app.logger.Error("process request error", "err", err)
@@ -67,6 +72,11 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse)).
 		WithLogger(app.logger)
 
+	var err error
+	if sdkCtx, err = app.ProcessAnteHandler(sdkCtx, req); err != nil {
+		return nil, err
+	}
+
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
 	if err != nil {
 		app.logger.Error("post request error", "err", err)
@@ -74,6 +84,14 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 	}
 
 	return &avsitypes.ResponseProcessDVSResponse{}, nil
+}
+
+func (app *BaseApp) ProcessAnteHandler(ctx sdktypes.Context, msg any) (sdktypes.Context, error) {
+	if app.anteHandler != nil {
+		return app.anteHandler(ctx, msg)
+	}
+
+	return ctx, nil
 }
 
 // responseProcessDVSRequestWithEvents creates a DVS request response with error information and events.
