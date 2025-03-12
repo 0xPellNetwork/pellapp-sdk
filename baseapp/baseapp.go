@@ -6,7 +6,6 @@ import (
 
 	"github.com/0xPellNetwork/pellapp-sdk/service"
 	"github.com/0xPellNetwork/pellapp-sdk/types"
-	ptypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 // BaseApp is the main application structure that serves as the foundation
@@ -28,7 +27,7 @@ type BaseApp struct {
 	// handlers for DVS services
 	msgRouter *service.MsgRouter
 
-	anteHandler ptypes.AnteHandler
+	anteHandler types.AnteHandler
 }
 
 // NewBaseApp creates and initializes a new BaseApp instance with the provided parameters.
