@@ -14,6 +14,10 @@ import (
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
+const DVSResponsHandler = "DVSResponsHandler"
+
+const DVSResponseHandlerKeyPattern = "%sResp"
+
 // MsgHandler is a function type that handles SDK messages and returns a result or error
 type MsgHandler func(ctx sdktypes.Context, msg sdk.Msg) (*result.Result, error)
 
@@ -63,6 +67,11 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 		}
 
 		requestTypeName = sdk.MsgTypeURL(msg)
+
+		if method.MethodName == DVSResponsHandler {
+			requestTypeName = fmt.Sprintf(DVSResponseHandlerKeyPattern, requestTypeName)
+		}
+
 		return nil
 	}, noopInterceptor)
 
@@ -95,8 +104,13 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 }
 
 // GetHandler returns the handler for a specific message type
-func (m *MsgRouterMgr) GetHandler(msg sdk.Msg) (MsgHandler, bool) {
-	handler, found := m.Router[m.calcMsgKey(msg)]
+func (m *MsgRouterMgr) GetHandler(ctx sdktypes.Context, msg sdk.Msg) (MsgHandler, bool) {
+	key := m.calcMsgKey(msg)
+	if ctx.ValidatedResponse() != nil {
+		key = fmt.Sprintf(DVSResponseHandlerKeyPattern, key)
+	}
+
+	handler, found := m.Router[key]
 	return handler, found
 }
 
@@ -125,7 +139,7 @@ func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.
 	}
 
 	for _, msg := range msgTx.GetMsgs() {
-		handler, found := m.GetHandler(msg)
+		handler, found := m.GetHandler(ctx, msg)
 		if found {
 			return handler(ctx, msg)
 		}
