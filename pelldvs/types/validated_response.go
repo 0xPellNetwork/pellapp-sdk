@@ -12,7 +12,7 @@ func NewValidatedResponse(validatedData *avsitypes.DVSResponse) *RequestPostRequ
 		})
 	}
 
-	var resp = &RequestPostRequestValidatedData{
+	return &RequestPostRequestValidatedData{
 		Data:                         validatedData.Data,
 		Error:                        validatedData.Error,
 		Hash:                         validatedData.Hash,
@@ -25,5 +25,4 @@ func NewValidatedResponse(validatedData *avsitypes.DVSResponse) *RequestPostRequ
 		TotalStakeIndices:            validatedData.TotalStakeIndices,
 		NonSignerStakeIndices:        nonSignerStakeIndices,
 	}
-	return resp
 }
