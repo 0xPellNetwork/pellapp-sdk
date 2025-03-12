@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
@@ -68,7 +69,7 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 
 		requestTypeName = sdk.MsgTypeURL(msg)
 
-		if method.MethodName == DVSResponsHandler {
+		if strings.Contains(method.MethodName, DVSResponsHandler) {
 			requestTypeName = fmt.Sprintf(DVSResponseHandlerKeyPattern, requestTypeName)
 		}
 
