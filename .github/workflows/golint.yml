@@ -1,0 +1,76 @@
+name: Golang Linter
+# Lint runs golangci-lint over the entire PellAapp-sdk repository.
+#
+# This workflow is run on every pull request and push to v0.38.x.
+#
+# The `golangci` job will pass without running if no *.{go, mod, sum}
+# files have been modified.
+#
+# To run this locally, simply run `make lint` from the root of the repo.
+
+on:
+  pull_request:
+    paths:
+      - "**.go"
+  push:
+    paths:
+      - "**.go"
+    branches:
+      - main
+jobs:
+  lint-go-imports:
+    name: Lint imports
+    runs-on: [ "self-hosted", "Linux", "X64", "ci" ]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+
+      - name: Setup private repo
+        run: git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/0xPellNetwork".insteadOf "https://github.com/0xPellNetwork"
+
+      - name: Install tools
+        run: |
+          go install github.com/incu6us/goimports-reviser/v3@latest
+
+      - name: Format imports
+        run: make lint-imports
+
+      - name: Verify goimports
+        run: |
+          git diff --exit-code || { echo "Error: Goimports are not up to date."; exit 1; }
+  golangci:
+    name: golangci-lint
+    runs-on: [ "self-hosted", "Linux", "X64", "ci" ]
+    timeout-minutes: 8
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      TAG: ${{ github.event.pull_request.head.sha || github.workflow_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: private
+        run: git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/0xPellNetwork".insteadOf "https://github.com/0xPellNetwork"
+      - uses: technote-space/get-diff-action@v6
+        with:
+          PATTERNS: |
+            **/**.go
+            go.mod
+            go.sum
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+        if: env.GIT_DIFF
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          args: --timeout 10m
+          github-token: ${{ secrets.GH_TOKEN }}
+        if: env.GIT_DIFF
