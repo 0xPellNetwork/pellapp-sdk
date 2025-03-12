@@ -4,7 +4,6 @@ go 1.23.3
 
 require (
 	cosmossdk.io/errors v1.0.1
-	cosmossdk.io/log v1.5.0
 	github.com/0xPellNetwork/pelldvs v0.2.1
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
@@ -20,6 +19,7 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.1.0 // indirect
+	cosmossdk.io/log v1.5.0 // indirect
 	cosmossdk.io/math v1.4.0 // indirect
 	cosmossdk.io/store v1.1.1 // indirect
 	cosmossdk.io/x/tx v0.13.7 // indirect

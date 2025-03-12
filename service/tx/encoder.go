@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/unknownproto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/types/tx"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	sdkTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/gogoproto/proto"
@@ -45,7 +44,7 @@ func (d *DefaultCoder) Decode(txBytes []byte) (sdk.Tx, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrTxDecode, err.Error())
 	}
 
-	var raw tx.TxRaw
+	var raw txtypes.TxRaw
 
 	// reject all unknown proto fields in the root TxRaw
 	err = unknownproto.RejectUnknownFieldsStrict(txBytes, &raw, d.cdc.InterfaceRegistry())
@@ -58,7 +57,7 @@ func (d *DefaultCoder) Decode(txBytes []byte) (sdk.Tx, error) {
 		return nil, err
 	}
 
-	var body tx.TxBody
+	var body txtypes.TxBody
 
 	// allow non-critical unknown fields in TxBody
 	txBodyHasUnknownNonCriticals, err := unknownproto.RejectUnknownFields(raw.BodyBytes, &body, true, d.cdc.InterfaceRegistry())
@@ -71,7 +70,7 @@ func (d *DefaultCoder) Decode(txBytes []byte) (sdk.Tx, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrTxDecode, err.Error())
 	}
 
-	var authInfo tx.AuthInfo
+	var authInfo txtypes.AuthInfo
 
 	// reject all unknown proto fields in AuthInfo
 	err = unknownproto.RejectUnknownFieldsStrict(raw.AuthInfoBytes, &authInfo, d.cdc.InterfaceRegistry())
@@ -84,7 +83,7 @@ func (d *DefaultCoder) Decode(txBytes []byte) (sdk.Tx, error) {
 		return nil, errorsmod.Wrap(sdkerrors.ErrTxDecode, err.Error())
 	}
 
-	theTx := &tx.Tx{
+	theTx := &txtypes.Tx{
 		Body:       &body,
 		AuthInfo:   &authInfo,
 		Signatures: raw.Signatures,
