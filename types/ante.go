@@ -1,7 +1,18 @@
 package types
 
-// AnteHandler authenticates transactions, before their internal messages are handled.
-// If newCtx.IsZero(), ctx is used instead.
+// AnteHandle performs pre-processing operations before the message is handled.
+// It receives the current context, the message to be processed, and the next handler in the chain.
+// The implementation should perform its logic and then call the next handler in the chain,
+// or return an error to stop the processing flow.
+//
+// Parameters:
+//   - ctx: The current context containing request information and state
+//   - msg: The message being processed
+//   - next: The next handler in the decorator chain
+//
+// Returns:
+//   - newCtx: A potentially modified context to pass to subsequent handlers
+//   - err: An error if the message should not be processed further, nil otherwise
 type AnteHandler func(ctx Context, msg any) (newCtx Context, err error)
 
 // AnteDecorator wraps the next AnteHandler to perform custom pre-processing.
@@ -9,20 +20,18 @@ type AnteDecorator interface {
 	AnteHandle(ctx Context, msg any, next AnteHandler) (newCtx Context, err error)
 }
 
-// ChainAnteDecorators ChainDecorator chains AnteDecorators together with each AnteDecorator
-// wrapping over the decorators further along chain and returns a single AnteHandler.
+// ChainAnteDecorators chains AnteDecorators together and returns a single AnteHandler.
+// It creates a decorator chain where each AnteDecorator wraps the decorators further along the chain.
+// The resulting AnteHandler will execute decorators in order, with each decorator able to perform
+// pre-processing, invoke the next handler, and perform post-processing.
 //
-// NOTE: The first element is outermost decorator, while the last element is innermost
-// decorator. Decorator ordering is critical since some decorators will expect
-// certain checks and updates to be performed (e.g. the Context) before the decorator
-// is run. These expectations should be documented clearly in a CONTRACT docline
-// in the decorator's godoc.
+// NOTE: The first element is the outermost decorator, while the last element is the innermost.
+// Decorator ordering is critical since some decorators may expect certain checks or context
+// modifications to be performed before they run. These expectations should be documented clearly
+// in a CONTRACT docline in the decorator's godoc.
 //
-// NOTE: Any application that uses GasMeter to limit transaction processing cost
-// MUST set GasMeter with the FIRST AnteDecorator. Failing to do so will cause
-// transactions to be processed with an infinite gasmeter and open a DOS attack vector.
-// Use `ante.SetUpContextDecorator` or a custom Decorator with similar functionality.
-// Returns nil when no AnteDecorator are supplied.
+// The chain execution stops if any decorator returns an error. If no decorators are supplied,
+// nil is returned.
 func ChainAnteDecorators(chain ...AnteDecorator) AnteHandler {
 	if len(chain) == 0 {
 		return nil
