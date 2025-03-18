@@ -51,9 +51,11 @@ type MockProtoMessage struct {
 	proto.Message
 }
 
-func (m *MockProtoMessage) Reset()         { *m = MockProtoMessage{} }
+func (m *MockProtoMessage) Reset() { *m = MockProtoMessage{} }
+
 func (m *MockProtoMessage) String() string { return "MockProtoMessage" }
-func (m *MockProtoMessage) ProtoMessage()  {}
+
+func (m *MockProtoMessage) ProtoMessage() {}
 
 // MockResultMsgExtractorForConfigurator implements result.ResultMsgExtractor for testing
 type MockResultMsgExtractorForConfigurator struct {

@@ -1,9 +1,9 @@
 package types
 
 import (
+	"context"
 	"errors"
 	"testing"
-	"context"
 )
 
 // MockContext implements Context interface for testing

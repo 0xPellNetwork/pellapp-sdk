@@ -47,13 +47,20 @@ type MockMsg struct {
 	TypeURL string
 }
 
-func (m *MockMsg) Reset()                                   { *m = MockMsg{} }
-func (m *MockMsg) String() string                           { return m.TypeURL }
-func (m *MockMsg) ProtoMessage()                            {}
-func (m *MockMsg) Marshal() ([]byte, error)                 { return nil, nil }
-func (m *MockMsg) Unmarshal([]byte) error                   { return nil }
-func (m *MockMsg) MarshalTo([]byte) (int, error)            { return 0, nil }
-func (m *MockMsg) Size() int                                { return 0 }
+func (m *MockMsg) Reset() { *m = MockMsg{} }
+
+func (m *MockMsg) String() string { return m.TypeURL }
+
+func (m *MockMsg) ProtoMessage() {}
+
+func (m *MockMsg) Marshal() ([]byte, error) { return nil, nil }
+
+func (m *MockMsg) Unmarshal([]byte) error { return nil }
+
+func (m *MockMsg) MarshalTo([]byte) (int, error) { return 0, nil }
+
+func (m *MockMsg) Size() int { return 0 }
+
 func (m *MockMsg) MarshalToSizedBuffer([]byte) (int, error) { return 0, nil }
 
 // MockService implements a test gRPC service
