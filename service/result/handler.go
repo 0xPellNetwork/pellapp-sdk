@@ -12,21 +12,21 @@ import (
 // It allows registering specialized handlers for processing specific message types
 // and extracting custom data and digests from them.
 type CustomResultManager struct {
-	customHandlers map[string]ResultMsgExtractor
+	customHandlers map[string]sdktypes.ResultMsgExtractor
 }
 
 // NewCustomResultManager creates a new instance of CustomResultManager with
 // an initialized map of custom handlers.
 func NewCustomResultManager() *CustomResultManager {
 	return &CustomResultManager{
-		customHandlers: make(map[string]ResultMsgExtractor),
+		customHandlers: make(map[string]sdktypes.ResultMsgExtractor),
 	}
 }
 
 // RegisterCustomizedFunc registers a custom result handler for a specific message type.
 // The message type is determined by its protobuf URL, and the handler will be called
 // when processing results of this message type.
-func (r *CustomResultManager) RegisterCustomizedFunc(t proto.Message, f ResultMsgExtractor) {
+func (r *CustomResultManager) RegisterCustomizedFunc(t proto.Message, f sdktypes.ResultMsgExtractor) {
 	r.customHandlers[sdk.MsgTypeURL(t)] = f
 }
 
@@ -35,7 +35,7 @@ func (r *CustomResultManager) RegisterCustomizedFunc(t proto.Message, f ResultMs
 // protobuf and attaching any events on the ctx.EventManager() to the Result.
 // If a custom handler is registered for the message type, it will also extract
 // custom data and digest from the result.
-func (r *CustomResultManager) WrapServiceResult(ctx sdktypes.Context, res proto.Message, err error) (*Result, error) {
+func (r *CustomResultManager) WrapServiceResult(ctx sdktypes.Context, res proto.Message, err error) (*sdktypes.AvsiResult, error) {
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (r *CustomResultManager) WrapServiceResult(ctx sdktypes.Context, res proto.
 		}
 	}
 
-	outResult := &Result{
+	outResult := &sdktypes.AvsiResult{
 		Result: &sdktypes.Result{
 			Data:         data,
 			Events:       ctx.EventManager().AVSIEvents(),

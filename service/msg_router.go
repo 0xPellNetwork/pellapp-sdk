@@ -31,7 +31,7 @@ func NewMsgRouter(cdc codec.Codec) *MsgRouter {
 }
 
 // InvokeByMsgData routes raw byte data to the configurator
-func (h *MsgRouter) InvokeByMsgData(sdkCtx sdktypes.Context, data []byte) (*result.Result, error) {
+func (h *MsgRouter) InvokeByMsgData(sdkCtx sdktypes.Context, data []byte) (*sdktypes.AvsiResult, error) {
 	return h.configurator.(*Configurator).InvokeByMsgData(sdkCtx, data)
 }
 

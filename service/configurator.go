@@ -34,11 +34,11 @@ func (p *Configurator) RegisterService(sd *grpc.ServiceDesc, handler any) {
 }
 
 // InvokeByMsgData invokes the router handler with raw byte data
-func (p *Configurator) InvokeByMsgData(ctx sdktypes.Context, data []byte) (*result.Result, error) {
+func (p *Configurator) InvokeByMsgData(ctx sdktypes.Context, data []byte) (*sdktypes.AvsiResult, error) {
 	return p.Router.HandleByData(ctx, data)
 }
 
 // RegisterResultMsgExtractor registers a custom handler for a specific message type
-func (p *Configurator) RegisterResultMsgExtractor(msg proto.Message, handler result.ResultMsgExtractor) {
+func (p *Configurator) RegisterResultMsgExtractor(msg proto.Message, handler sdktypes.ResultMsgExtractor) {
 	p.ResultManager.RegisterCustomizedFunc(msg, handler)
 }

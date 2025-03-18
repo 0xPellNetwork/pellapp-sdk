@@ -20,7 +20,7 @@ const DVSResponsHandler = "DVSResponsHandler"
 const DVSResponseHandlerKeyPattern = "%sResp"
 
 // MsgHandler is a function type that handles SDK messages and returns a result or error
-type MsgHandler func(ctx sdktypes.Context, msg sdk.Msg) (*result.Result, error)
+type MsgHandler func(ctx sdktypes.Context, msg sdk.Msg) (*sdktypes.AvsiResult, error)
 
 // defaultMsgKeyFunc is a default function for getting the message key
 func defaultMsgKeyFunc(msg sdk.Msg) string {
@@ -78,7 +78,7 @@ func (m *MsgRouterMgr) RegisterMsgHandler(sd *grpc.ServiceDesc, method grpc.Meth
 
 	// requestTypeName register check
 	if _, ok := m.Router[requestTypeName]; !ok {
-		m.Router[requestTypeName] = func(ctx sdktypes.Context, msg sdk.Msg) (*result.Result, error) {
+		m.Router[requestTypeName] = func(ctx sdktypes.Context, msg sdk.Msg) (*sdktypes.AvsiResult, error) {
 			// ctx = ctx.WithEventManager(sdk.NewEventManager())
 			interceptor := func(goCtx context.Context, _ any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 				goCtx = context.WithValue(goCtx, sdktypes.ContextKey, ctx)
@@ -133,7 +133,7 @@ func (m *MsgRouterMgr) GetHandlerByData(data []byte) (MsgHandler, error) {
 }
 
 // HandleByData decodes the message data, finds the appropriate handler, and processes the message
-func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*result.Result, error) {
+func (m *MsgRouterMgr) HandleByData(ctx sdktypes.Context, data []byte) (*sdktypes.AvsiResult, error) {
 	msgTx, err := m.encoder.Decode(data)
 	if err != nil {
 		return nil, err
