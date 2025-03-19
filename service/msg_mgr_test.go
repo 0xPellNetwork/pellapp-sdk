@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -275,7 +274,7 @@ func TestDVSResponseHandler(t *testing.T) {
 	assert.NotNil(t, handler)
 
 	// Verify that the handlers are different by checking the router map directly
-	requestKey := sdk.MsgTypeURL(msg)
+	requestKey := types.MsgTypeURL(msg)
 	responseKey := fmt.Sprintf(DVSResponseHandlerKeyPattern, requestKey)
 
 	requestHandler, requestFound := router.Router[requestKey]
