@@ -1,17 +1,15 @@
-package result
+package types
 
 import (
-	"github.com/cosmos/gogoproto/proto"
-
-	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // Result extends the sdk.Result structure by adding custom data and digest fields.
 // It is used to carry additional information when processing DVS results.
-type Result struct {
-	*sdktypes.Result        // Embedded original SDK result
-	CustomData       []byte // Custom data for storing application-specific result information
-	CustomDigest     []byte // Custom digest for verification or indexing purposes
+type AvsiResult struct {
+	*Result             // Embedded original SDK result
+	CustomData   []byte // Custom data for storing application-specific result information
+	CustomDigest []byte // Custom digest for verification or indexing purposes
 }
 
 // ResultMsgExtractor defines an interface for handling custom result data.
