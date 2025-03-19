@@ -107,6 +107,7 @@ linters-settings:
           - github.com/prometheus/common/expfmt
           - github.com/stretchr/testify/assert
           - github.com/stretchr/testify/require
+          - github.com/stretchr/testify/mock
           - google.golang.org/protobuf/proto
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc
@@ -152,6 +153,7 @@ linters-settings:
           - github.com/prometheus/client_golang/prometheus/testutil
           - github.com/stretchr/testify/assert
           - github.com/stretchr/testify/require
+          - github.com/stretchr/testify/mock
           - google.golang.org/protobuf/proto
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc

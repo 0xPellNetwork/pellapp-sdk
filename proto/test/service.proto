@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package test.service;
+
+option go_package = "github.com/0xPellNetwork/pellapp-sdk/proto/test";
+
+// TestMsg represents a test message
+message TestMsg {
+  string type_url = 1;
+} 
