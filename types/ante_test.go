@@ -6,11 +6,6 @@ import (
 	"testing"
 )
 
-// MockContext implements Context interface for testing
-type MockContext struct {
-	Context
-}
-
 func NewMockContext() Context {
 	return Context{baseCtx: context.Background()}
 }

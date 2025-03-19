@@ -2,14 +2,18 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/proto"
+	protov2 "google.golang.org/protobuf/proto"
 
+	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
+	"github.com/0xPellNetwork/pellapp-sdk/proto/test"
 	"github.com/0xPellNetwork/pellapp-sdk/service/result"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
@@ -44,24 +48,22 @@ func (m *MockMsgEncoderForMsgMgr) EncodeMsgs(msgs ...types.Msg) ([]byte, error) 
 
 // MockMsg implements sdk.Msg for testing
 type MockMsg struct {
-	TypeURL string
+	*test.TestMsg
 }
 
-func (m *MockMsg) Reset() { *m = MockMsg{} }
+func NewMockMsg(typeURL string) *MockMsg {
+	return &MockMsg{
+		TestMsg: &test.TestMsg{
+			TypeUrl: typeURL,
+		},
+	}
+}
 
-func (m *MockMsg) String() string { return m.TypeURL }
+func (m *MockMsg) Reset() { m.TestMsg.Reset() }
+
+func (m *MockMsg) String() string { return m.TypeUrl }
 
 func (m *MockMsg) ProtoMessage() {}
-
-func (m *MockMsg) Marshal() ([]byte, error) { return nil, nil }
-
-func (m *MockMsg) Unmarshal([]byte) error { return nil }
-
-func (m *MockMsg) MarshalTo([]byte) (int, error) { return 0, nil }
-
-func (m *MockMsg) Size() int { return 0 }
-
-func (m *MockMsg) MarshalToSizedBuffer([]byte) (int, error) { return 0, nil }
 
 // MockService implements a test gRPC service
 type MockService struct {
@@ -98,7 +100,7 @@ func TestRegisterMsgHandler(t *testing.T) {
 			{
 				MethodName: "TestMethod",
 				Handler: func(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
-					msg := &MockMsg{TypeURL: "/test.service/TestMethod"}
+					msg := NewMockMsg("/test.service/TestMethod")
 					if err := dec(msg); err != nil {
 						return nil, err
 					}
@@ -113,7 +115,7 @@ func TestRegisterMsgHandler(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify handler was registered
-	msg := &MockMsg{TypeURL: "/test.service/TestMethod"}
+	msg := NewMockMsg("/test.service/TestMethod")
 	handler, found := router.GetHandler(sdktypes.Context{}, msg)
 	assert.True(t, found)
 	assert.NotNil(t, handler)
@@ -123,7 +125,7 @@ func TestGetHandlerByData(t *testing.T) {
 	encoder := &MockMsgEncoderForMsgMgr{
 		DecodeFunc: func(data []byte) (types.Tx, error) {
 			return &MockTxForMsgMgr{
-				Msgs: []types.Msg{&MockMsg{TypeURL: "/test.service/TestMethod"}},
+				Msgs: []types.Msg{NewMockMsg("/test.service/TestMethod")},
 			}, nil
 		},
 	}
@@ -137,7 +139,7 @@ func TestGetHandlerByData(t *testing.T) {
 			{
 				MethodName: "TestMethod",
 				Handler: func(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
-					msg := &MockMsg{TypeURL: "/test.service/TestMethod"}
+					msg := NewMockMsg("/test.service/TestMethod")
 					if err := dec(msg); err != nil {
 						return nil, err
 					}
@@ -157,7 +159,7 @@ func TestGetHandlerByData(t *testing.T) {
 	assert.NotNil(t, handler)
 }
 
-// MockTx implements types.Tx for testing
+// MockTxForMsgMgr implements types.Tx for testing
 type MockTxForMsgMgr struct {
 	Msgs []types.Msg
 }
@@ -166,10 +168,10 @@ func (m *MockTxForMsgMgr) GetMsgs() []types.Msg {
 	return m.Msgs
 }
 
-func (m *MockTxForMsgMgr) GetMsgsV2() ([]proto.Message, error) {
-	msgs := make([]proto.Message, len(m.Msgs))
+func (m *MockTxForMsgMgr) GetMsgsV2() ([]protov2.Message, error) {
+	msgs := make([]protov2.Message, len(m.Msgs))
 	for i, msg := range m.Msgs {
-		msgs[i] = msg.(proto.Message)
+		msgs[i] = msg.(protov2.Message)
 	}
 	return msgs, nil
 }
@@ -178,7 +180,7 @@ func TestHandleByData(t *testing.T) {
 	encoder := &MockMsgEncoderForMsgMgr{
 		DecodeFunc: func(data []byte) (types.Tx, error) {
 			return &MockTxForMsgMgr{
-				Msgs: []types.Msg{&MockMsg{TypeURL: "/test.service/TestMethod"}},
+				Msgs: []types.Msg{NewMockMsg("/test.service/TestMethod")},
 			}, nil
 		},
 	}
@@ -192,12 +194,12 @@ func TestHandleByData(t *testing.T) {
 			{
 				MethodName: "TestMethod",
 				Handler: func(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
-					msg := &MockMsg{TypeURL: "/test.service/TestMethod"}
+					msg := NewMockMsg("/test.service/TestMethod")
 					if err := dec(msg); err != nil {
 						return nil, err
 					}
 					// Return a valid proto.Message
-					return &MockMsg{TypeURL: "/test.service/TestMethod"}, nil
+					return NewMockMsg("/test.service/TestMethod"), nil
 				},
 			},
 		},
@@ -214,4 +216,73 @@ func TestHandleByData(t *testing.T) {
 	result, err := router.HandleByData(ctx, []byte("test data"))
 	require.NoError(t, err)
 	assert.NotNil(t, result)
+}
+
+func TestDVSResponseHandler(t *testing.T) {
+	encoder := &MockMsgEncoderForMsgMgr{}
+	resultHandler := result.NewCustomResultManager()
+	router := NewMsgRouterMgr(encoder, resultHandler)
+
+	// Create a mock service description with both request and response handlers
+	sd := &grpc.ServiceDesc{
+		ServiceName: "test.service",
+		Methods: []grpc.MethodDesc{
+			{
+				MethodName: "TestMethod",
+				Handler: func(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
+					msg := NewMockMsg("/test.service/TestMethod")
+					if err := dec(msg); err != nil {
+						return nil, err
+					}
+					return msg, nil
+				},
+			},
+			{
+				MethodName: "TestMethodDVSResponsHandler",
+				Handler: func(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
+					msg := NewMockMsg("/test.service/TestMethod")
+					if err := dec(msg); err != nil {
+						return nil, err
+					}
+					return msg, nil
+				},
+			},
+		},
+	}
+
+	mockService := &MockService{}
+	// Register both handlers
+	err := router.RegisterMsgHandler(sd, sd.Methods[0], mockService)
+	require.NoError(t, err)
+	err = router.RegisterMsgHandler(sd, sd.Methods[1], mockService)
+	require.NoError(t, err)
+
+	// Test request handler
+	msg := NewMockMsg("/test.service/TestMethod")
+	ctx := sdktypes.NewContext(context.Background())
+	handler, found := router.GetHandler(ctx, msg)
+	assert.True(t, found)
+	assert.NotNil(t, handler)
+
+	// Test response handler
+	ctx = sdktypes.NewContext(context.Background())
+	validatedData := &dvstypes.RequestPostRequestValidatedData{
+		Data: []byte("test data"),
+	}
+	ctx = ctx.WithValidatedResponse(validatedData)
+	handler, found = router.GetHandler(ctx, msg)
+	assert.True(t, found)
+	assert.NotNil(t, handler)
+
+	// Verify that the handlers are different by checking the router map directly
+	requestKey := sdk.MsgTypeURL(msg)
+	responseKey := fmt.Sprintf(DVSResponseHandlerKeyPattern, requestKey)
+
+	requestHandler, requestFound := router.Router[requestKey]
+	responseHandler, responseFound := router.Router[responseKey]
+
+	assert.True(t, requestFound)
+	assert.True(t, responseFound)
+	assert.NotNil(t, requestHandler)
+	assert.NotNil(t, responseHandler)
 }

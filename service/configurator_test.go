@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -77,9 +78,12 @@ type MockServiceHandlerForConfigurator struct {
 	mock.Mock
 }
 
-func (m *MockServiceHandlerForConfigurator) TestMethod(ctx interface{}, req interface{}) (interface{}, error) {
+func (m *MockServiceHandlerForConfigurator) TestMethod(ctx context.Context, req *MockMsgForConfigurator) (*MockMsgForConfigurator, error) {
 	args := m.Called(ctx, req)
-	return args.Get(0), args.Error(1)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*MockMsgForConfigurator), args.Error(1)
 }
 
 // MockMsgForConfigurator implements types.Msg for testing
@@ -113,19 +117,29 @@ func TestConfigurator_RegisterService(t *testing.T) {
 	mockResultManager := result.NewCustomResultManager()
 	configurator := NewConfigurator(mockEncoder, mockResultManager)
 
-	// Create a minimal service description with no methods
+	// Create a mock service description with a test method
 	mockServiceDesc := &grpc.ServiceDesc{
 		ServiceName: "TestService",
-		HandlerType: (*interface{})(nil),
-		Methods:     []grpc.MethodDesc{},
-		Streams:     []grpc.StreamDesc{},
+		HandlerType: (*MockServiceHandlerForConfigurator)(nil),
+		Methods: []grpc.MethodDesc{
+			{
+				MethodName: "TestMethod",
+				Handler: func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+					return &MockMsgForConfigurator{}, nil
+				},
+			},
+		},
+		Streams: []grpc.StreamDesc{},
 	}
 
 	// Create a mock handler
-	mockHandler := struct{}{}
+	mockHandler := new(MockServiceHandlerForConfigurator)
 
 	// Register the service
 	configurator.RegisterService(mockServiceDesc, mockHandler)
+
+	// Verify mock expectations
+	mockHandler.AssertExpectations(t)
 
 	// Verify the service was registered (this is an indirect test since we can't directly access the router's internal state)
 	// The test passing without panicking indicates successful registration
