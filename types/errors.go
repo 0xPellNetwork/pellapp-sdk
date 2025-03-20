@@ -1,9 +1,9 @@
 package types
 
 import (
-	sdkerrors "github.com/0xPellNetwork/pellapp-sdk/errors"
-
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
+
+	sdkerrors "github.com/0xPellNetwork/pellapp-sdk/errors"
 )
 
 // AvsiBaseError contains common fields for AVSI error responses
