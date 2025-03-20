@@ -6,7 +6,6 @@ import (
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/jinzhu/copier" //nolint:depguard
 
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -67,7 +66,7 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithGroupNumbers(req.DvsRequest.GroupNumbers).
 		WithRequestData(req.DvsRequest.Data).
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
-		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse)).
+		WithValidatedResponse(req.DvsResponse).
 		WithLogger(app.logger)
 
 	resp := &avsitypes.ResponseProcessDVSResponse{}
