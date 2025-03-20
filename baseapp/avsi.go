@@ -4,10 +4,9 @@ import (
 	"context"
 
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
-	"github.com/jinzhu/copier"
+	"github.com/jinzhu/copier" //nolint:depguard
 
 	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
-	"github.com/0xPellNetwork/pellapp-sdk/types"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -46,7 +45,7 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 	if err != nil {
 		app.logger.Error("process request error", "err", err)
 
-		copier.Copy(resp, types.WarpAvsiBaseError(err, res, app.trace))
+		_ = copier.Copy(resp, sdktypes.WarpAvsiBaseError(err, res, app.trace))
 		return resp, err
 	}
 
@@ -76,7 +75,7 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 	if err != nil {
 		app.logger.Error("post request error", "err", err)
 
-		copier.Copy(resp, types.WarpAvsiBaseError(err, res, app.trace))
+		_ = copier.Copy(resp, sdktypes.WarpAvsiBaseError(err, res, app.trace))
 		return resp, err
 	}
 
