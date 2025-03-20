@@ -4,9 +4,10 @@ import (
 	"context"
 
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
+	"github.com/jinzhu/copier"
 
-	sdkerrors "github.com/0xPellNetwork/pellapp-sdk/errors"
 	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
+	"github.com/0xPellNetwork/pellapp-sdk/types"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -40,15 +41,13 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 		WithOperator(req.Operator).
 		WithLogger(app.logger)
 
-	var err error
-	if sdkCtx, err = app.ProcessAnteHandler(sdkCtx, req); err != nil {
-		return nil, err
-	}
-
+	resp := &avsitypes.ResponseProcessDVSRequest{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.Request.Data)
 	if err != nil {
 		app.logger.Error("process request error", "err", err)
-		return responseProcessDVSRequestWithEvents(err, sdktypes.MarkEventsToIndex(res.Events, app.indexEvents), app.trace), err
+
+		copier.Copy(resp, types.WarpAvsiBaseError(err, res, app.trace))
+		return resp, err
 	}
 
 	return &avsitypes.ResponseProcessDVSRequest{
@@ -72,48 +71,18 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse)).
 		WithLogger(app.logger)
 
-	var err error
-	if sdkCtx, err = app.ProcessAnteHandler(sdkCtx, req); err != nil {
-		return nil, err
-	}
-
+	resp := &avsitypes.ResponseProcessDVSResponse{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
 	if err != nil {
 		app.logger.Error("post request error", "err", err)
-		return responseProcessDVSResponseWithEvents(err, sdktypes.MarkEventsToIndex(res.Events, app.indexEvents), app.trace), err
+
+		copier.Copy(resp, types.WarpAvsiBaseError(err, res, app.trace))
+		return resp, err
 	}
 
-	return &avsitypes.ResponseProcessDVSResponse{}, nil
-}
-
-func (app *BaseApp) ProcessAnteHandler(ctx sdktypes.Context, msg any) (sdktypes.Context, error) {
-	if app.anteHandler != nil {
-		return app.anteHandler(ctx, msg)
-	}
-
-	return ctx, nil
-}
-
-// responseProcessDVSRequestWithEvents creates a DVS request response with error information and events.
-// Used when an error occurs during request processing to format the error response.
-func responseProcessDVSRequestWithEvents(err error, events []avsitypes.Event, debug bool) *avsitypes.ResponseProcessDVSRequest {
-	space, code, log := sdkerrors.AVSIInfo(err, debug)
-	return &avsitypes.ResponseProcessDVSRequest{
-		Code:      code,
-		Log:       log,
-		Events:    events,
-		Codespace: space,
-	}
-}
-
-// responseProcessDVSResponseWithEvents creates a DVS response with error information and events.
-// Used when an error occurs during response processing to format the error response.
-func responseProcessDVSResponseWithEvents(err error, events []avsitypes.Event, debug bool) *avsitypes.ResponseProcessDVSResponse {
-	space, code, log := sdkerrors.AVSIInfo(err, debug)
 	return &avsitypes.ResponseProcessDVSResponse{
-		Code:      code,
-		Log:       log,
-		Events:    events,
-		Codespace: space,
-	}
+		Data:   res.CustomData,
+		Log:    res.Log,
+		Events: sdktypes.MarkEventsToIndex(res.Events, app.indexEvents),
+	}, nil
 }
