@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"testing"
 
+	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	protov2 "google.golang.org/protobuf/proto"
 
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	"github.com/0xPellNetwork/pellapp-sdk/proto/test"
 	"github.com/0xPellNetwork/pellapp-sdk/service/result"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
@@ -265,7 +265,7 @@ func TestDVSResponseHandler(t *testing.T) {
 
 	// Test response handler
 	ctx = sdktypes.NewContext(context.Background())
-	validatedData := &dvstypes.RequestPostRequestValidatedData{
+	validatedData := &avsitypes.DVSResponse{
 		Data: []byte("test data"),
 	}
 	ctx = ctx.WithValidatedResponse(validatedData)
