@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"testing"
 
+	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
