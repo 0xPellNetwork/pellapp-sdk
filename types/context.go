@@ -6,8 +6,6 @@ import (
 
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
-
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 )
 
 type ContextKeyType string
@@ -25,7 +23,7 @@ type Context struct {
 	groupThresholdPercentages []uint32
 	requestData               []byte
 	operators                 []*avsitypes.Operator
-	validatedResponse         *dvstypes.RequestPostRequestValidatedData
+	validatedResponse         *avsitypes.DVSResponse
 	logger                    log.Logger
 }
 
@@ -46,7 +44,7 @@ func (c Context) RequestData() []byte { return c.requestData }
 
 func (c Context) Operators() []*avsitypes.Operator { return c.operators }
 
-func (c Context) ValidatedResponse() *dvstypes.RequestPostRequestValidatedData {
+func (c Context) ValidatedResponse() *avsitypes.DVSResponse {
 	return c.validatedResponse
 }
 
@@ -129,7 +127,7 @@ func (c Context) WithGroupThresholdPercentages(groupThresholdPercentages []uint3
 	return c
 }
 
-func (c Context) WithValidatedResponse(validatedData *dvstypes.RequestPostRequestValidatedData) Context {
+func (c Context) WithValidatedResponse(validatedData *avsitypes.DVSResponse) Context {
 	c.validatedResponse = validatedData
 	return c
 }
