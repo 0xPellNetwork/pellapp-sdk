@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 
@@ -18,6 +19,7 @@ const (
 
 type Context struct {
 	baseCtx                   context.Context
+	ms                        storetypes.MultiStore
 	eventManager              EventManagerI
 	chainID                   int64
 	height                    int64
@@ -46,8 +48,25 @@ func (c Context) RequestData() []byte { return c.requestData }
 
 func (c Context) Operators() []*avsitypes.Operator { return c.operators }
 
+func (c Context) Logger() log.Logger { return c.logger }
+
 func (c Context) ValidatedResponse() *dvstypes.RequestPostRequestValidatedData {
 	return c.validatedResponse
+}
+
+// GetKVStore returns the KV store for a specific store key.
+func (c Context) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+	return c.ms.GetKVStore(key)
+}
+
+func (c Context) Set(key storetypes.StoreKey, k, v []byte) {
+	store := c.ms.GetKVStore(key)
+	store.Set(k, v)
+}
+
+func (c Context) Get(key storetypes.StoreKey, k []byte) []byte {
+	store := c.ms.GetKVStore(key)
+	return store.Get(k)
 }
 
 func (c Context) Value(key any) any {
@@ -131,6 +150,12 @@ func (c Context) WithGroupThresholdPercentages(groupThresholdPercentages []uint3
 
 func (c Context) WithValidatedResponse(validatedData *dvstypes.RequestPostRequestValidatedData) Context {
 	c.validatedResponse = validatedData
+	return c
+}
+
+// WithMultiStore returns a Context with an updated MultiStore.
+func (c Context) WithMultiStore(ms storetypes.MultiStore) Context {
+	c.ms = ms
 	return c
 }
 

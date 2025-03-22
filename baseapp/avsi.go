@@ -38,7 +38,8 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 		WithRequestData(req.Request.Data).
 		WithGroupThresholdPercentages(req.Request.GroupThresholdPercentages).
 		WithOperator(req.Operator).
-		WithLogger(app.logger)
+		WithLogger(app.logger).
+		WithMultiStore(app.cms.CacheMultiStore())
 
 	resp := &avsitypes.ResponseProcessDVSRequest{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.Request.Data)
@@ -68,7 +69,8 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithRequestData(req.DvsRequest.Data).
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
 		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse)).
-		WithLogger(app.logger)
+		WithLogger(app.logger).
+		WithMultiStore(app.cms.CacheMultiStore())
 
 	resp := &avsitypes.ResponseProcessDVSResponse{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)

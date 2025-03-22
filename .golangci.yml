@@ -112,6 +112,10 @@ linters-settings:
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc
           - cosmossdk.io/errors
+          - cosmossdk.io/store
+          - cosmossdk.io/store/types
+          - cosmossdk.io/store/metrics
+          - cosmossdk.io/log
       test:
         files:
           - "$test"
@@ -158,6 +162,10 @@ linters-settings:
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc
           - cosmossdk.io/errors
+          - cosmossdk.io/store
+          - cosmossdk.io/store/types
+          - cosmossdk.io/store/metrics
+          - cosmossdk.io/log
   revive:
     enable-all-rules: true
     rules:
