@@ -72,11 +72,6 @@ func NewBaseApp(
 		opt(app)
 	}
 
-	err := app.cms.LoadLatestVersion()
-	if err != nil {
-		panic(err)
-	}
-
 	return app
 }
 
