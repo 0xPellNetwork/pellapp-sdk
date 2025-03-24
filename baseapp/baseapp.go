@@ -56,7 +56,7 @@ func NewBaseApp(
 	cdc codec.Codec,
 	opts ...func(*BaseApp),
 ) *BaseApp {
-	clogger := cosmoslog.NewCustomLogger(logger.Impl().(zerolog.Logger))
+	clogger := cosmoslog.NewCustomLogger(*(logger.Impl().(*zerolog.Logger)))
 	app := &BaseApp{
 		name:        name,
 		logger:      logger,
