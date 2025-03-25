@@ -13,11 +13,17 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/0xPellNetwork/pellapp-sdk/service"
-	sdkstore "github.com/0xPellNetwork/pellapp-sdk/store"
 	"github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
-type StoreLoader func(ms storetypes.CommitMultiStore) error
+type (
+	// StoreLoader defines a customizable function to control how we load the
+	// CommitMultiStore from disk. This is useful for state migration, when
+	// loading a datastore written with an older version of the software. In
+	// particular, if a module changed the substore key name (or removed a substore)
+	// between two versions of the software.
+	StoreLoader func(ms storetypes.CommitMultiStore) error
+)
 
 // BaseApp is the main application structure that serves as the foundation
 // for dvs applications built on the PellApp-sdk. It manages core
@@ -27,14 +33,13 @@ type BaseApp struct {
 	version string // Version of the application
 
 	logger log.Logger
-	// trace set will return full stack traces for errors in ABCI Log field
+	// trace set will return full stack traces for errors in AVSI Log field
 	trace bool
 
-	db           dbm.DB                      // common DB backend
-	cms          storetypes.CommitMultiStore // Main (uncached) state
-	qms          storetypes.MultiStore       // Optional alternative multistore for querying only.
-	storeLoader  StoreLoader                 // function to handle store loading, may be overridden with SetStoreLoader()
-	storeManager *sdkstore.StoreManager
+	db          dbm.DB                      // common DB backend
+	cms         storetypes.CommitMultiStore // Main (uncached) state
+	qms         storetypes.MultiStore       // Optional alternative multistore for querying only.
+	storeLoader StoreLoader                 // function to handle store loading, may be overridden with SetStoreLoader()
 
 	// flag for sealing options and parameters to a BaseApp
 	sealed bool
@@ -42,7 +47,8 @@ type BaseApp struct {
 	// which informs CometBFT what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
-	msgRouter *service.MsgRouter
+	msgRouter       *service.MsgRouter
+	grpcQueryRouter *GRPCQueryRouter // router for redirecting gRPC query calls
 
 	anteHandler types.AnteHandler
 }
@@ -65,8 +71,6 @@ func NewBaseApp(
 		storeLoader: DefaultStoreLoader,
 	}
 
-	app.storeManager = sdkstore.NewStoreManager(app.cms, nil)
-
 	// apply options
 	for _, opt := range opts {
 		opt(app)
@@ -78,6 +82,8 @@ func NewBaseApp(
 func (app *BaseApp) GetMsgRouter() *service.MsgRouter {
 	return app.msgRouter
 }
+
+func (app *BaseApp) GRPCQueryRouter() *GRPCQueryRouter { return app.grpcQueryRouter }
 
 func (app *BaseApp) SetAnteHandler(ah types.AnteHandler) {
 	if app.sealed {
@@ -98,7 +104,6 @@ func (app *BaseApp) Sealed() {
 // SetQueryMultiStore set a alternative MultiStore implementation to support grpc query service.
 func (app *BaseApp) SetQueryMultiStore(ms storetypes.MultiStore) {
 	app.qms = ms
-	app.storeManager = sdkstore.NewStoreManager(app.cms, ms)
 }
 
 // SetupDefaultQueryStore sets the default query store as a cached version of the main store
@@ -111,14 +116,20 @@ func (app *BaseApp) SetupDefaultQueryStore() error {
 	return nil
 }
 
-func (app *BaseApp) GetStoreManager() *sdkstore.StoreManager {
-	return app.storeManager
-}
-
 // MountStore mounts a store to the provided key in the BaseApp multistore,
 // using the default DB.
 func (app *BaseApp) MountStore(key storetypes.StoreKey, typ storetypes.StoreType) {
 	app.cms.MountStoreWithDB(key, typ, app.db)
+}
+
+// LastCommitID returns the last CommitID of the multistore.
+func (app *BaseApp) LastCommitID() storetypes.CommitID {
+	return app.cms.LastCommitID()
+}
+
+// LastBlockHeight returns the last committed block height.
+func (app *BaseApp) LastBlockHeight() int64 {
+	return app.cms.LatestVersion()
 }
 
 // DefaultStoreLoader will be used by default and loads the latest version
@@ -128,8 +139,8 @@ func DefaultStoreLoader(ms storetypes.CommitMultiStore) error {
 
 // CommitMultiStore returns the root multi-store.
 // App constructor can use this to access the `cms`.
-// UNSAFE: must not be used during the abci life cycle.
-func (app *BaseApp) GetCommitMultiStore() storetypes.CommitMultiStore {
+// UNSAFE: must not be used during the avsi life cycle.
+func (app *BaseApp) CommitMultiStore() storetypes.CommitMultiStore {
 	return app.cms
 }
 
@@ -138,20 +149,17 @@ func (app *BaseApp) HasQueryMultiStore() bool {
 	return app.qms != nil
 }
 
-// GetQueryMultiStore returns the QueryMultiStore for GRPC query services
-func (app *BaseApp) GetQueryMultiStore() storetypes.MultiStore {
-	return app.qms
-}
-
-// GetKVStore returns the KV store for a specific store key.
-func (app *BaseApp) GetCommitStore(key storetypes.StoreKey) storetypes.KVStore {
-	return app.cms.GetKVStore(key)
-}
-
-// GetKVStore returns the Query store for a specific store key.
-func (app *BaseApp) GetQueryStore(key storetypes.StoreKey) storetypes.KVStore {
-	if !app.HasQueryMultiStore() {
-		return nil
+// QueryMultiStore returns the QueryMultiStore for GRPC query services
+func (app *BaseApp) QueryMultiStore() storetypes.MultiStore {
+	if app.HasQueryMultiStore() {
+		return app.qms
 	}
-	return app.qms.GetKVStore(key)
+	return app.cms
+}
+
+func (app *BaseApp) SetCMS(cms storetypes.CommitMultiStore) {
+	if app.sealed {
+		panic("SetEndBlocker() on sealed BaseApp")
+	}
+	app.cms = cms
 }

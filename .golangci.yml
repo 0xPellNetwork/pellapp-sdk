@@ -116,6 +116,11 @@ linters-settings:
           - cosmossdk.io/store/types
           - cosmossdk.io/store/metrics
           - cosmossdk.io/log
+          - google.golang.org/protobuf/reflect/protoreflect
+          - google.golang.org/protobuf/reflect/protoregistry
+          - google.golang.org/protobuf/runtime/protoiface
+          - github.com/grpc-ecosystem/go-grpc-middleware
+          - github.com/grpc-ecosystem/go-grpc-middleware/recovery
       test:
         files:
           - "$test"
@@ -166,6 +171,11 @@ linters-settings:
           - cosmossdk.io/store/types
           - cosmossdk.io/store/metrics
           - cosmossdk.io/log
+          - google.golang.org/protobuf/reflect/protoreflect
+          - google.golang.org/protobuf/reflect/protoregistry
+          - google.golang.org/protobuf/runtime/protoiface
+          - github.com/grpc-ecosystem/go-grpc-middleware
+          - github.com/grpc-ecosystem/go-grpc-middleware/recovery
   revive:
     enable-all-rules: true
     rules:

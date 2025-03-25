@@ -54,19 +54,28 @@ func (c Context) ValidatedResponse() *dvstypes.RequestPostRequestValidatedData {
 	return c.validatedResponse
 }
 
-// GetKVStore returns the KV store for a specific store key.
-func (c Context) GetKVStore(key storetypes.StoreKey) storetypes.KVStore {
+// MultiStore returns the MultiStore for this context.
+func (c Context) MultiStore() storetypes.MultiStore { return c.ms }
+
+// KVStore returns the KV store for a specific store key.
+func (c Context) KVStore(key storetypes.StoreKey) storetypes.KVStore {
 	return c.ms.GetKVStore(key)
 }
 
-func (c Context) Set(key storetypes.StoreKey, k, v []byte) {
-	store := c.ms.GetKVStore(key)
-	store.Set(k, v)
-}
+// CacheContext returns a new Context with the multi-store cached and a new
+// EventManager. The cached context is written to the context when writeCache
+// is called. Note, events are automatically emitted on the parent context's
+// EventManager when the caller executes the write.
+func (c Context) CacheContext() (cc Context, writeCache func()) {
+	cms := c.ms.CacheMultiStore()
+	cc = c.WithMultiStore(cms).WithEventManager(NewEventManager())
 
-func (c Context) Get(key storetypes.StoreKey, k []byte) []byte {
-	store := c.ms.GetKVStore(key)
-	return store.Get(k)
+	writeCache = func() {
+		c.EventManager().EmitEvents(cc.EventManager().Events())
+		cms.Write()
+	}
+
+	return cc, writeCache
 }
 
 func (c Context) Value(key any) any {
@@ -88,12 +97,20 @@ func (c Context) Err() error {
 	return c.baseCtx.Err()
 }
 
+type ContextOption func(Context) Context
+
 // todo delete header
-func NewContext(baseCtx context.Context) Context {
-	return Context{
+func NewContext(baseCtx context.Context, ms storetypes.MultiStore, logger log.Logger, options ...ContextOption) Context {
+	ctx := Context{
 		baseCtx:      baseCtx,
+		ms:           ms,
+		logger:       logger,
 		eventManager: NewEventManager(),
 	}
+	for _, option := range options {
+		ctx = option(ctx)
+	}
+	return ctx
 }
 
 func (c Context) WithLogger(logger log.Logger) Context {
