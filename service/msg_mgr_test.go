@@ -6,13 +6,13 @@ import (
 	"testing"
 
 	storetypes "cosmossdk.io/store/types"
+	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	protov2 "google.golang.org/protobuf/proto"
 
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	"github.com/0xPellNetwork/pellapp-sdk/proto/test"
 	"github.com/0xPellNetwork/pellapp-sdk/service/result"
 	"github.com/0xPellNetwork/pellapp-sdk/testutil"
@@ -211,7 +211,7 @@ func TestHandleByData(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create a context with necessary values
-	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewKVStoreKey("transient_test"))
+	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewTransientStoreKey("transient_test"))
 
 	// Test handling data
 	result, err := router.HandleByData(ctx, []byte("test data"))
@@ -260,13 +260,13 @@ func TestDVSResponseHandler(t *testing.T) {
 
 	// Test request handler
 	msg := NewMockMsg("/test.service/TestMethod")
-	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewKVStoreKey("transient_test"))
+	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewTransientStoreKey("transient_test"))
 	handler, found := router.GetHandler(ctx, msg)
 	assert.True(t, found)
 	assert.NotNil(t, handler)
 
 	// Test response handler
-	validatedData := &dvstypes.RequestPostRequestValidatedData{
+	validatedData := &avsitypes.DVSResponse{
 		Data: []byte("test data"),
 	}
 	ctx = ctx.WithValidatedResponse(validatedData)

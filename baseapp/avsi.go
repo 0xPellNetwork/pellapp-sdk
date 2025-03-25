@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
 
-	dvstypes "github.com/0xPellNetwork/pellapp-sdk/pelldvs/types"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -133,7 +132,7 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		WithGroupNumbers(req.DvsRequest.GroupNumbers).
 		WithRequestData(req.DvsRequest.Data).
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
-		WithValidatedResponse(dvstypes.NewValidatedResponse(req.DvsResponse))
+		WithValidatedResponse(req.DvsResponse)
 
 	resp := &avsitypes.ResponseProcessDVSResponse{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
