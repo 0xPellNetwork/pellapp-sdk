@@ -4,7 +4,7 @@ go 1.23.3
 
 require (
 	cosmossdk.io/errors v1.0.1
-	github.com/0xPellNetwork/pelldvs v0.2.1
+	github.com/0xPellNetwork/pelldvs v0.3.0
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.50.11
@@ -28,7 +28,7 @@ require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/0xPellNetwork/contracts v0.2.31 // indirect
 	github.com/0xPellNetwork/pell-middleware-contracts v0.2.32 // indirect
-	github.com/0xPellNetwork/pelldvs-interactor v0.0.9 // indirect
+	github.com/0xPellNetwork/pelldvs-interactor v0.0.14 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
 	github.com/DataDog/datadog-go v3.2.0+incompatible // indirect
