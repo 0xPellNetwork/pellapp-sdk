@@ -54,7 +54,7 @@ func NewNode(
 	}
 
 	// Load or generate private validator
-	pv, err := privval.LoadOrGenFilePV(n.nodeCfg.PrivValidatorKeyFile())
+	pv, err := privval.LoadOrGenFilePV(n.nodeCfg.Pell.OperatorBLSPrivateKeyStorePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load or gen file PV: %v", err)
 	}
