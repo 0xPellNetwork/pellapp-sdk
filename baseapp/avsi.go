@@ -38,6 +38,8 @@ func (app *BaseApp) Info(ctx context.Context, info *avsitypes.RequestInfo) (*avs
 // Query handles queries to the application.
 // It implements the AVSI interface by returning a successful response with OK code.
 func (app *BaseApp) Query(ctx context.Context, req *avsitypes.RequestQuery) (resp *avsitypes.ResponseQuery, err error) {
+	app.logger.Debug("AVSI Query", "path", req.Path, "height", req.Height, "prove", req.Prove)
+
 	defer func() {
 		if r := recover(); r != nil {
 			resp = queryResult(errorsmod.Wrapf(sdkerrors.ErrPanic, "%v", r), app.trace)
@@ -54,12 +56,15 @@ func (app *BaseApp) Query(ctx context.Context, req *avsitypes.RequestQuery) (res
 	start := telemetry.Now()
 	defer telemetry.MeasureSince(start, req.Path)
 
+	app.logger.Debug("AVSI Query gRP routes", "routes", app.grpcQueryRouter.routes)
+
 	if req.Path == QueryPathBroadcastTx {
 		return queryResult(errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "can't route a broadcast tx message"), app.trace), nil
 	}
 
 	// handle gRPC routes first rather than calling splitPath because '/' characters
 	// are used as part of gRPC paths
+
 	if grpcHandler := app.grpcQueryRouter.Route(req.Path); grpcHandler != nil {
 		return app.handleQueryGRPC(grpcHandler, req), nil
 	}

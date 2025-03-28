@@ -22,10 +22,10 @@ test:
 
 
 pre-commit:
+	@make lint-imports
 	@make lint
 	@make vulncheck
 	@make test
-	@make lint-imports
 
 .PHONY: proto
 
