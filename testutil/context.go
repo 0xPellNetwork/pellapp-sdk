@@ -29,7 +29,7 @@ func DefaultContext(key, tkey storetypes.StoreKey) sdktypes.Context {
 	if err != nil {
 		panic(err)
 	}
-	ctx := sdktypes.NewContext(context.Background(), cms, log.NewNopLogger())
+	ctx := sdktypes.NewContext(context.Background(), cms, logger)
 
 	return ctx
 }

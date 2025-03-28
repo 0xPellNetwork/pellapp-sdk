@@ -157,9 +157,10 @@ func (app *BaseApp) QueryMultiStore() storetypes.MultiStore {
 	return app.cms
 }
 
+// SetCMS sets the CommitMultiStore for the BaseApp.
 func (app *BaseApp) SetCMS(cms storetypes.CommitMultiStore) {
 	if app.sealed {
-		panic("SetEndBlocker() on sealed BaseApp")
+		panic("SetCMS() on sealed BaseApp")
 	}
 	app.cms = cms
 }
