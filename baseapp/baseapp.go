@@ -47,8 +47,7 @@ type BaseApp struct {
 	// which informs CometBFT what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
-	msgRouter       *service.MsgRouter
-	grpcQueryRouter *GRPCQueryRouter // router for redirecting gRPC query calls
+	msgRouter *service.MsgRouter
 
 	anteHandler types.AnteHandler
 }
@@ -83,8 +82,6 @@ func (app *BaseApp) GetMsgRouter() *service.MsgRouter {
 	return app.msgRouter
 }
 
-func (app *BaseApp) GRPCQueryRouter() *GRPCQueryRouter { return app.grpcQueryRouter }
-
 func (app *BaseApp) SetAnteHandler(ah types.AnteHandler) {
 	if app.sealed {
 		panic("Cannot call SetAnteHandler: baseapp already sealed")
@@ -101,7 +98,7 @@ func (app *BaseApp) Sealed() {
 	app.sealed = true
 }
 
-// SetQueryMultiStore set a alternative MultiStore implementation to support grpc query service.
+// SetQueryMultiStore set a alternative MultiStore implementation to support query service.
 func (app *BaseApp) SetQueryMultiStore(ms storetypes.MultiStore) {
 	app.qms = ms
 }
@@ -149,7 +146,7 @@ func (app *BaseApp) HasQueryMultiStore() bool {
 	return app.qms != nil
 }
 
-// QueryMultiStore returns the QueryMultiStore for GRPC query services
+// QueryMultiStore returns the QueryMultiStore for query services
 func (app *BaseApp) QueryMultiStore() storetypes.MultiStore {
 	if app.HasQueryMultiStore() {
 		return app.qms

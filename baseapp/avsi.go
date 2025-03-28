@@ -7,22 +7,17 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
-	crypto "github.com/0xPellNetwork/pelldvs/proto/pelldvs/crypto"
+	"github.com/0xPellNetwork/pelldvs/proto/pelldvs/crypto"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/jinzhu/copier" //nolint:depguard
-	"google.golang.org/grpc/codes"
-	grpcstatus "google.golang.org/grpc/status"
 
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
 // Supported AVSI Query prefixes and paths
 const (
-	QueryPathApp    = "app"
-	QueryPathCustom = "custom"
-	QueryPathP2P    = "p2p"
-	QueryPathStore  = "store"
+	QueryPathStore = "store"
 
 	QueryPathBroadcastTx = "/cosmos.tx.v1beta1.Service/BroadcastTx"
 )
@@ -56,28 +51,23 @@ func (app *BaseApp) Query(ctx context.Context, req *avsitypes.RequestQuery) (res
 	start := telemetry.Now()
 	defer telemetry.MeasureSince(start, req.Path)
 
-	app.logger.Debug("AVSI Query gRP routes", "routes", app.grpcQueryRouter.routes)
-
 	if req.Path == QueryPathBroadcastTx {
+		app.logger.Error("AVSI Query path type: BroadcastTx", "path", req.Path)
 		return queryResult(errorsmod.Wrap(sdkerrors.ErrInvalidRequest, "can't route a broadcast tx message"), app.trace), nil
-	}
-
-	// handle gRPC routes first rather than calling splitPath because '/' characters
-	// are used as part of gRPC paths
-
-	if grpcHandler := app.grpcQueryRouter.Route(req.Path); grpcHandler != nil {
-		return app.handleQueryGRPC(grpcHandler, req), nil
 	}
 
 	path := SplitAVSIQueryPath(req.Path)
 	if len(path) == 0 {
+		app.logger.Error("AVSI Query no path", "path", req.Path)
 		return queryResult(errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "no req path provided"), app.trace), nil
 	}
 
 	switch path[0] {
 	case QueryPathStore:
+		app.logger.Info("AVSI Query path type: Store", "path", req.Path)
 		resp = handleQueryStore(app, path, *req)
 	default:
+		app.logger.Error("AVSI Query path type, None", "path", req.Path)
 		resp = queryResult(errorsmod.Wrap(sdkerrors.ErrUnknownRequest, "unknown req path"), app.trace)
 	}
 
@@ -155,62 +145,11 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 	}, nil
 }
 
-func gRPCErrorToSDKError(err error) error {
-	status, ok := grpcstatus.FromError(err)
-	if !ok {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-	}
-
-	switch status.Code() {
-	case codes.NotFound:
-		return errorsmod.Wrap(sdkerrors.ErrKeyNotFound, err.Error())
-
-	case codes.InvalidArgument:
-		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-
-	case codes.FailedPrecondition:
-		return errorsmod.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-
-	case codes.Unauthenticated:
-		return errorsmod.Wrap(sdkerrors.ErrUnauthorized, err.Error())
-
-	default:
-		return errorsmod.Wrap(sdkerrors.ErrUnknownRequest, err.Error())
-	}
-}
-
-func (app *BaseApp) handleQueryGRPC(handler GRPCQueryHandler, req *avsitypes.RequestQuery) *avsitypes.ResponseQuery {
-	ctx, err := app.CreateQueryContext(req.Height, req.Prove)
-	if err != nil {
-		return queryResult(err, app.trace)
-	}
-
-	resp, err := handler(ctx, req)
-	if err != nil {
-		resp = queryResult(gRPCErrorToSDKError(err), app.trace)
-		resp.Height = req.Height
-		return resp
-	}
-
-	return resp
-}
-
-// SetGRPCQueryRouter sets the GRPCQueryRouter of the BaseApp.
-func (app *BaseApp) SetGRPCQueryRouter(grpcQueryRouter *GRPCQueryRouter) {
-	app.grpcQueryRouter = grpcQueryRouter
-}
-
 // CreateQueryContext creates a new sdktypes.Context for a query, taking as args
 // the block height and whether the query needs a proof or not.
 func (app *BaseApp) CreateQueryContext(height int64, prove bool) (sdktypes.Context, error) {
 	ctx := sdktypes.NewContext(context.Background(), app.cms, app.logger)
 	return ctx, nil
-}
-
-// Commit commits the current state of the application.
-func (app *BaseApp) Commit() error {
-	app.cms.Commit()
-	return nil
 }
 
 func handleQueryStore(app *BaseApp, path []string, req avsitypes.RequestQuery) *avsitypes.ResponseQuery {
