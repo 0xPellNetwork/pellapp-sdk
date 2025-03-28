@@ -8,7 +8,6 @@ import (
 	cosmoslog "cosmossdk.io/log"
 	"cosmossdk.io/store"
 	"cosmossdk.io/store/metrics"
-	"cosmossdk.io/store/types"
 	storetypes "cosmossdk.io/store/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	dbm "github.com/cosmos/cosmos-db"
@@ -19,8 +18,8 @@ import (
 
 func TestContextMultiStore(t *testing.T) {
 	// create test keys
-	key := types.NewKVStoreKey("test_key")
-	tkey := types.NewTransientStoreKey("test_transient_key")
+	key := storetypes.NewKVStoreKey("test_key")
+	tkey := storetypes.NewTransientStoreKey("test_transient_key")
 
 	// Create test environment
 	db := dbm.NewMemDB()
@@ -52,8 +51,8 @@ func TestContextMultiStore(t *testing.T) {
 
 func TestContextCacheMultiStore(t *testing.T) {
 	// create test keys
-	key := types.NewKVStoreKey("test_key")
-	tkey := types.NewTransientStoreKey("test_transient_key")
+	key := storetypes.NewKVStoreKey("test_key")
+	tkey := storetypes.NewTransientStoreKey("test_transient_key")
 
 	// Create test environment
 	db := dbm.NewMemDB()

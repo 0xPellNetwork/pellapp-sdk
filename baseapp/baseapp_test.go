@@ -137,7 +137,9 @@ func TestBaseAppStoreOperations(t *testing.T) {
 	require.Nil(t, value)
 
 	// Test query store reset
-	app.SetupDefaultQueryStore()
+	err = app.SetupDefaultQueryStore()
+	require.NoError(t, err)
+
 	qmsStore = app.qms.GetKVStore(storeKey)
 	value = qmsStore.Get(testKey)
 	require.Nil(t, value)
