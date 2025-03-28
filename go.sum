@@ -25,10 +25,10 @@ github.com/0xPellNetwork/contracts v0.2.31 h1:k2t5dTYfvyGyar+XPcY5W5xcJzs4b/++RT
 github.com/0xPellNetwork/contracts v0.2.31/go.mod h1:eJZRJT/Mzea8LuhiFZXWy36tfIaDVt1oFmjN7Ux7gTw=
 github.com/0xPellNetwork/pell-middleware-contracts v0.2.32 h1:RW2JZB/ScdSqqVaixONkXXuXO6AfkeiLKQbB8PgNBsg=
 github.com/0xPellNetwork/pell-middleware-contracts v0.2.32/go.mod h1:Qex0CyN926FuTONIfZfoMsbs+2UDCwMpkZg3QvRccvQ=
-github.com/0xPellNetwork/pelldvs v0.2.1 h1:9pWrpR1J5iRvJ56bwgqQAQEmFIXeBjzdY27Afu+PZWE=
-github.com/0xPellNetwork/pelldvs v0.2.1/go.mod h1:ye/qv87DqPxVHEq1rNesQ49QV8WLhDmrUac97ipqUXc=
-github.com/0xPellNetwork/pelldvs-interactor v0.0.9 h1:Wp6uir7wXJKK+mSy2/LOfAE63aaMSZi/RYd/yFSdImA=
-github.com/0xPellNetwork/pelldvs-interactor v0.0.9/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
+github.com/0xPellNetwork/pelldvs v0.3.0 h1:QhCd8zI4+dhwBokBwDV/HcFzzHcN0VCjP/URgygrI44=
+github.com/0xPellNetwork/pelldvs v0.3.0/go.mod h1:osqufSthuMd6hZxH89Yljopele4mcqx5gxxpRh+heZw=
+github.com/0xPellNetwork/pelldvs-interactor v0.0.14 h1:vcC0DzK9JNz6x/r8SA+fAcQiata/K/PdQhfIe88JyFQ=
+github.com/0xPellNetwork/pelldvs-interactor v0.0.14/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0 h1:fNyzJKhH5Iux1YVPddLVwR/txPkbkRvE5+VunS7tFeg=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0/go.mod h1:mU9ltThnyjDpKZHnOuJvMqbQU1O99P4cOAecTUKDAIY=
 github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:/vQbFIOMbk2FiG/kXiLl8BRyzTWDw7gX/Hz7Dd5eDMs=

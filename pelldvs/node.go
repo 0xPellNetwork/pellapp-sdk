@@ -53,8 +53,14 @@ func NewNode(
 		return nil, fmt.Errorf("failed to load node key: %v", err)
 	}
 
+	// Load or generate private validator
+	pv, err := privval.LoadOrGenFilePV(n.nodeCfg.Pell.OperatorBLSPrivateKeyStorePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load or gen file PV: %v", err)
+	}
+
 	n.node, err = node.NewNode(n.nodeCfg,
-		privval.LoadOrGenFilePV(n.nodeCfg.PrivValidatorKeyFile(), n.nodeCfg.PrivValidatorStateFile()),
+		pv,
 		nodeKey,
 		proxy.NewLocalClientCreator(app),
 		config.DefaultDBProvider,
