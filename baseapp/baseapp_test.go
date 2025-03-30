@@ -74,20 +74,6 @@ func TestBaseAppSeal(t *testing.T) {
 	})
 }
 
-func TestBaseAppDefaultQueryStore(t *testing.T) {
-	app := setupBaseApp(t)
-
-	// test setting up default query store
-	err := app.SetupDefaultQueryStore()
-	require.NoError(t, err)
-	require.True(t, app.HasQueryMultiStore())
-
-	// this should fail because there is no CMS
-	app = &BaseApp{}
-	err = app.SetupDefaultQueryStore()
-	require.Error(t, err)
-}
-
 func TestBaseAppStoreOperations(t *testing.T) {
 	app := setupBaseApp(t)
 
@@ -103,10 +89,8 @@ func TestBaseAppStoreOperations(t *testing.T) {
 	cmsStore := app.cms.GetKVStore(storeKey)
 	require.NotNil(t, cmsStore)
 
-	// Setup default query store
-	err = app.SetupDefaultQueryStore()
 	require.NoError(t, err)
-	qmsStore := app.qms.GetKVStore(storeKey)
+	qmsStore := app.QueryMultiStore().GetKVStore(storeKey)
 	require.NotNil(t, qmsStore)
 
 	// Test basic store operations
@@ -136,11 +120,7 @@ func TestBaseAppStoreOperations(t *testing.T) {
 	value = cmsStore.Get(testKey)
 	require.Nil(t, value)
 
-	// Test query store reset
-	err = app.SetupDefaultQueryStore()
-	require.NoError(t, err)
-
-	qmsStore = app.qms.GetKVStore(storeKey)
+	qmsStore = app.QueryMultiStore().GetKVStore(storeKey)
 	value = qmsStore.Get(testKey)
 	require.Nil(t, value)
 }

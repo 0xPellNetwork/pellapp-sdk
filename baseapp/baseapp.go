@@ -1,8 +1,6 @@
 package baseapp
 
 import (
-	"fmt"
-
 	cosmoslog "cosmossdk.io/log"
 	"cosmossdk.io/store"
 	storemetrics "cosmossdk.io/store/metrics"
@@ -101,16 +99,6 @@ func (app *BaseApp) Sealed() {
 // SetQueryMultiStore set a alternative MultiStore implementation to support query service.
 func (app *BaseApp) SetQueryMultiStore(ms storetypes.MultiStore) {
 	app.qms = ms
-}
-
-// SetupDefaultQueryStore sets the default query store as a cached version of the main store
-func (app *BaseApp) SetupDefaultQueryStore() error {
-	if app.cms == nil {
-		return fmt.Errorf("commit multistore not initialized")
-	}
-
-	app.SetQueryMultiStore(app.cms.CacheMultiStore())
-	return nil
 }
 
 // MountStore mounts a store to the provided key in the BaseApp multistore,

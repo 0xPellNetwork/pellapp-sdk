@@ -4,13 +4,17 @@ go 1.23.3
 
 require (
 	cosmossdk.io/errors v1.0.1
+	cosmossdk.io/log v1.5.0
+	cosmossdk.io/store v1.1.1
 	github.com/0xPellNetwork/pelldvs v0.3.0
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
+	github.com/cosmos/cosmos-db v1.1.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.50.11
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/ethereum/go-ethereum v1.14.13
 	github.com/jinzhu/copier v0.3.5
+	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.69.4
 	google.golang.org/protobuf v1.36.3
@@ -21,9 +25,7 @@ require (
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/core v0.11.0 // indirect
 	cosmossdk.io/depinject v1.1.0 // indirect
-	cosmossdk.io/log v1.5.0 // indirect
 	cosmossdk.io/math v1.4.0 // indirect
-	cosmossdk.io/store v1.1.1 // indirect
 	cosmossdk.io/x/tx v0.13.7 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/0xPellNetwork/contracts v0.2.31 // indirect
@@ -56,7 +58,6 @@ require (
 	github.com/consensys/bavard v0.1.27 // indirect
 	github.com/consensys/gnark-crypto v0.16.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
-	github.com/cosmos/cosmos-db v1.1.0 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v1.2.2 // indirect
@@ -144,7 +145,6 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/cors v1.11.1 // indirect
-	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.5 // indirect
