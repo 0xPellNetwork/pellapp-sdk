@@ -90,7 +90,7 @@ func TestBaseAppStoreOperations(t *testing.T) {
 	require.NotNil(t, cmsStore)
 
 	require.NoError(t, err)
-	qmsStore := app.QueryMultiStore().GetKVStore(storeKey)
+	qmsStore := app.QueryMultiStore().CacheMultiStore().GetKVStore(storeKey)
 	require.NotNil(t, qmsStore)
 
 	// Test basic store operations
