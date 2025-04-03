@@ -12,7 +12,12 @@ import (
 type ContextKeyType string
 
 const (
-	ContextKey ContextKeyType = "pkg_context"
+	ContextKey       ContextKeyType = "pkg_context"
+	ClientContextKey ContextKeyType = "client.context"
+
+	// ServerContextKey defines the context key used to retrieve a server.Context from
+	// a command's Context.
+	ServerContextKey ContextKeyType = "server.context"
 )
 
 type Context struct {

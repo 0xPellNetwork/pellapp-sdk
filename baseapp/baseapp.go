@@ -1,6 +1,8 @@
 package baseapp
 
 import (
+	"errors"
+
 	cosmoslog "cosmossdk.io/log"
 	"cosmossdk.io/store"
 	storemetrics "cosmossdk.io/store/metrics"
@@ -42,10 +44,11 @@ type BaseApp struct {
 	// flag for sealing options and parameters to a BaseApp
 	sealed bool
 	// indexEvents defines the set of events in the form {eventType}.{attributeKey},
-	// which informs CometBFT what to index. If empty, all events will be indexed.
+	// which informs PellDVS what to index. If empty, all events will be indexed.
 	indexEvents map[string]struct{}
 	// handlers for DVS services
-	msgRouter *service.MsgRouter
+	msgRouter       *service.MsgRouter
+	grpcQueryRouter *GRPCQueryRouter // router for redirecting gRPC query calls
 
 	anteHandler types.AnteHandler
 }
@@ -148,4 +151,27 @@ func (app *BaseApp) SetCMS(cms storetypes.CommitMultiStore) {
 		panic("SetCMS() on sealed BaseApp")
 	}
 	app.cms = cms
+}
+
+// GRPCQueryRouter returns the GRPCQueryRouter of a BaseApp.
+func (app *BaseApp) GRPCQueryRouter() *GRPCQueryRouter { return app.grpcQueryRouter }
+
+// SetGRPCQueryRouter sets the GRPCQueryRouter of the BaseApp.
+func (app *BaseApp) SetGRPCQueryRouter(grpcQueryRouter *GRPCQueryRouter) {
+	app.grpcQueryRouter = grpcQueryRouter
+}
+
+// Close is called in start cmd to gracefully cleanup resources.
+func (app *BaseApp) Close() error {
+	var errs []error
+
+	// Close app.db (opened by cosmos-sdk/server/start.go call to openDB)
+	if app.db != nil {
+		app.logger.Info("Closing application.db")
+		if err := app.db.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errors.Join(errs...)
 }

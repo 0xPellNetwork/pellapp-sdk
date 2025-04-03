@@ -8,8 +8,8 @@ import (
 // It is used to carry additional information when processing DVS results.
 type AvsiResult struct {
 	*Result             // Embedded original SDK result
-	CustomData   []byte // Custom data for storing application-specific result information
-	CustomDigest []byte // Custom digest for verification or indexing purposes
+	CustomData   []byte // Squared data for storing application-specific result information
+	CustomDigest []byte // Squared digest for verification or indexing purposes
 }
 
 // ResultMsgExtractor defines an interface for handling custom result data.

@@ -3,6 +3,7 @@ package baseapp
 import (
 	"context"
 
+	storetypes "cosmossdk.io/store/types"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/jinzhu/copier" //nolint:depguard
 
@@ -80,4 +81,19 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		Log:    res.Log,
 		Events: sdktypes.MarkEventsToIndex(res.Events, app.indexEvents),
 	}, nil
+}
+
+// createQueryContext creates a new sdk.Context for a query, taking as args
+// the block height and whether the query needs a proof or not.
+func (app *BaseApp) CreateQueryContext() (sdktypes.Context, error) {
+	// use custom query multi-store if provided
+	qms := app.qms
+	if qms == nil {
+		qms = app.cms.(storetypes.MultiStore)
+	}
+
+	cacheMS := qms.CacheMultiStore()
+	// branch the commit multi-store for safety
+	ctx := sdktypes.NewContext(context.Background(), cacheMS, app.logger)
+	return ctx, nil
 }
