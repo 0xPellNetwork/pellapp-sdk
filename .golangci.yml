@@ -127,7 +127,7 @@ linters-settings:
           - github.com/improbable-eng/grpc-web/go/grpcweb
           - golang.org/x/sync/errgroup
           - github.com/stretchr/testify/suite
-          - github.com/cometbft/cometbft/rpc/jsonrpc/server
+          - github.com/gorilla/handlers
       test:
         files:
           - "$test"
@@ -190,7 +190,7 @@ linters-settings:
           - golang.org/x/sync/errgroup
           - github.com/stretchr/testify/suite
           - github.com/jhump/protoreflect/grpcreflect
-          - github.com/cometbft/cometbft/rpc/jsonrpc/server
+          - github.com/gorilla/handlers
   revive:
     enable-all-rules: true
     rules:

@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"github.com/0xPellNetwork/pelldvs-libs/log"
-	tmrpcserver "github.com/cometbft/cometbft/rpc/jsonrpc/server" // TODO(jimmy): use pelldvs
+	pelldvspcserver "github.com/0xPellNetwork/pelldvs/rpc/jsonrpc/server"
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/telemetry"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	gateway "github.com/cosmos/gogogateway"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
@@ -22,6 +22,7 @@ import (
 
 	"github.com/0xPellNetwork/pellapp-sdk/client"
 	"github.com/0xPellNetwork/pellapp-sdk/server/config"
+	grpctypes "github.com/0xPellNetwork/pellapp-sdk/types/grpc"
 )
 
 // Server defines the server's API interface.
@@ -96,18 +97,23 @@ func New(clientCtx client.Context, logger log.Logger, grpcSrv *grpc.Server) *Ser
 func (s *Server) Start(ctx context.Context, cfg config.Config) error {
 	s.mtx.Lock()
 
-	cmtCfg := tmrpcserver.DefaultConfig()
+	cmtCfg := pelldvspcserver.DefaultConfig()
 	cmtCfg.MaxOpenConnections = int(cfg.API.MaxOpenConnections)
 	cmtCfg.ReadTimeout = time.Duration(cfg.API.RPCReadTimeout) * time.Second
 	cmtCfg.WriteTimeout = time.Duration(cfg.API.RPCWriteTimeout) * time.Second
 	cmtCfg.MaxBodyBytes = int64(cfg.API.RPCMaxBodyBytes)
 
-	listener, err := tmrpcserver.Listen(cfg.API.Address, cmtCfg.MaxOpenConnections)
+	listener, err := pelldvspcserver.Listen(cfg.API.Address, cmtCfg.MaxOpenConnections)
 	if err != nil {
 		s.mtx.Unlock()
 		return err
 	}
-	s.logger.Info("startAPIServer", "api.enable", cfg.API.Enable, "api.address", cfg.API.Address)
+	s.logger.Info("startAPIServer",
+		"api.enable", cfg.API.Enable,
+		"api.address", cfg.API.Address,
+		"s.GRPCGatewayRouter", s.GRPCGatewayRouter,
+		"listener", listener,
+	)
 
 	s.listener = listener
 	s.mtx.Unlock()
@@ -139,6 +145,20 @@ func (s *Server) Start(ctx context.Context, cfg config.Config) error {
 	s.Router.PathPrefix("/").Handler(s.GRPCGatewayRouter)
 
 	errCh := make(chan error)
+	// Start the API in an external goroutine as Serve is blocking and will return
+	// an error upon failure, which we'll send on the error channel that will be
+	// consumed by the for block below.
+	go func(enableUnsafeCORS bool) {
+		s.logger.Info("starting API server...", "address", cfg.API.Address)
+
+		if enableUnsafeCORS {
+			allowAllCORS := handlers.CORS(handlers.AllowedHeaders([]string{"Content-Type"}))
+			errCh <- pelldvspcserver.Serve(s.listener, allowAllCORS(s.Router), s.logger, cmtCfg)
+		} else {
+			errCh <- pelldvspcserver.Serve(s.listener, s.Router, s.logger, cmtCfg)
+		}
+	}(cfg.API.EnableUnsafeCORS)
+
 	// Start a blocking select to wait for an indication to stop the server or that
 	// the server failed to start properly.
 	select {
