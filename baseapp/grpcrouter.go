@@ -8,18 +8,18 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/grpc/reflection"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"google.golang.org/protobuf/runtime/protoiface"
 
 	"github.com/0xPellNetwork/pellapp-sdk/baseapp/internal/protocompat"
+	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
-// GRPCQueryRouter routes ABCI Query requests to GRPC handlers
+// GRPCQueryRouter routes AVSI Query requests to GRPC handlers
 type GRPCQueryRouter struct {
-	// routes maps query handlers used in ABCIQuery.
+	// routes maps query handlers used in AVSI Query.
 	routes map[string]GRPCQueryHandler
 	// hybridHandlers maps the request name to the handler. It is a hybrid handler which seamlessly
 	// handles both gogo and protov2 messages.
@@ -48,9 +48,9 @@ func NewGRPCQueryRouter() *GRPCQueryRouter {
 	}
 }
 
-// GRPCQueryHandler defines a function type which handles ABCI Query requests
+// GRPCQueryHandler defines a function type which handles AVSI Query requests
 // using gRPC
-type GRPCQueryHandler = func(ctx sdk.Context, req *avsitypes.RequestQuery) (*avsitypes.ResponseQuery, error)
+type GRPCQueryHandler = func(ctx sdktypes.Context, req *avsitypes.RequestQuery) (*avsitypes.ResponseQuery, error)
 
 // Route returns the GRPCQueryHandler for a given query route path or nil
 // if not found
@@ -70,7 +70,7 @@ func (qrt *GRPCQueryRouter) Route(path string) GRPCQueryHandler {
 func (qrt *GRPCQueryRouter) RegisterService(sd *grpc.ServiceDesc, handler interface{}) {
 	// adds a top-level query handler based on the gRPC service name
 	for _, method := range sd.Methods {
-		err := qrt.registerABCIQueryHandler(sd, method, handler)
+		err := qrt.registerAVSIQueryHandler(sd, method, handler)
 		if err != nil {
 			panic(err)
 		}
@@ -86,7 +86,7 @@ func (qrt *GRPCQueryRouter) RegisterService(sd *grpc.ServiceDesc, handler interf
 	})
 }
 
-func (qrt *GRPCQueryRouter) registerABCIQueryHandler(sd *grpc.ServiceDesc, method grpc.MethodDesc, handler interface{}) error {
+func (qrt *GRPCQueryRouter) registerAVSIQueryHandler(sd *grpc.ServiceDesc, method grpc.MethodDesc, handler interface{}) error {
 	fqName := fmt.Sprintf("/%s/%s", sd.ServiceName, method.MethodName)
 	methodHandler := method.Handler
 
@@ -103,9 +103,9 @@ func (qrt *GRPCQueryRouter) registerABCIQueryHandler(sd *grpc.ServiceDesc, metho
 		)
 	}
 
-	qrt.routes[fqName] = func(ctx sdk.Context, req *avsitypes.RequestQuery) (*avsitypes.ResponseQuery, error) {
+	qrt.routes[fqName] = func(ctx sdktypes.Context, req *avsitypes.RequestQuery) (*avsitypes.ResponseQuery, error) {
 		// call the method handler from the service description with the handler object,
-		// a wrapped sdk.Context with proto-unmarshaled data from the ABCI request data
+		// a wrapped sdk.Context with proto-unmarshaled data from the AVSI request data
 		res, err := methodHandler(handler, ctx, func(i interface{}) error {
 			return qrt.cdc.Unmarshal(req.Data, i)
 		}, nil)

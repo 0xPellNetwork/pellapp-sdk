@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/0xPellNetwork/pelldvs-libs/log"
-	pelldvspcserver "github.com/0xPellNetwork/pelldvs/rpc/jsonrpc/server"
+	pelldvsrpcserver "github.com/0xPellNetwork/pelldvs/rpc/jsonrpc/server"
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	gateway "github.com/cosmos/gogogateway"
@@ -97,13 +97,13 @@ func New(clientCtx client.Context, logger log.Logger, grpcSrv *grpc.Server) *Ser
 func (s *Server) Start(ctx context.Context, cfg config.Config) error {
 	s.mtx.Lock()
 
-	cmtCfg := pelldvspcserver.DefaultConfig()
+	cmtCfg := pelldvsrpcserver.DefaultConfig()
 	cmtCfg.MaxOpenConnections = int(cfg.API.MaxOpenConnections)
 	cmtCfg.ReadTimeout = time.Duration(cfg.API.RPCReadTimeout) * time.Second
 	cmtCfg.WriteTimeout = time.Duration(cfg.API.RPCWriteTimeout) * time.Second
 	cmtCfg.MaxBodyBytes = int64(cfg.API.RPCMaxBodyBytes)
 
-	listener, err := pelldvspcserver.Listen(cfg.API.Address, cmtCfg.MaxOpenConnections)
+	listener, err := pelldvsrpcserver.Listen(cfg.API.Address, cmtCfg.MaxOpenConnections)
 	if err != nil {
 		s.mtx.Unlock()
 		return err
@@ -153,9 +153,9 @@ func (s *Server) Start(ctx context.Context, cfg config.Config) error {
 
 		if enableUnsafeCORS {
 			allowAllCORS := handlers.CORS(handlers.AllowedHeaders([]string{"Content-Type"}))
-			errCh <- pelldvspcserver.Serve(s.listener, allowAllCORS(s.Router), s.logger, cmtCfg)
+			errCh <- pelldvsrpcserver.Serve(s.listener, allowAllCORS(s.Router), s.logger, cmtCfg)
 		} else {
-			errCh <- pelldvspcserver.Serve(s.listener, s.Router, s.logger, cmtCfg)
+			errCh <- pelldvsrpcserver.Serve(s.listener, s.Router, s.logger, cmtCfg)
 		}
 	}(cfg.API.EnableUnsafeCORS)
 
