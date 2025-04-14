@@ -17,6 +17,8 @@ import (
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
+var _ gogogrpc.Server = &GRPCQueryRouter{}
+
 // GRPCQueryRouter routes AVSI Query requests to GRPC handlers
 type GRPCQueryRouter struct {
 	// routes maps query handlers used in AVSI Query.
@@ -37,8 +39,6 @@ type serviceData struct {
 	serviceDesc *grpc.ServiceDesc
 	handler     interface{}
 }
-
-var _ gogogrpc.Server = &GRPCQueryRouter{}
 
 // NewGRPCQueryRouter creates a new GRPCQueryRouter
 func NewGRPCQueryRouter() *GRPCQueryRouter {
@@ -70,12 +70,11 @@ func (qrt *GRPCQueryRouter) Route(path string) GRPCQueryHandler {
 func (qrt *GRPCQueryRouter) RegisterService(sd *grpc.ServiceDesc, handler interface{}) {
 	// adds a top-level query handler based on the gRPC service name
 	for _, method := range sd.Methods {
-		err := qrt.registerAVSIQueryHandler(sd, method, handler)
-		if err != nil {
+		if err := qrt.registerAVSIQueryHandler(sd, method, handler); err != nil {
 			panic(err)
 		}
-		err = qrt.registerHybridHandler(sd, method, handler)
-		if err != nil {
+
+		if err := qrt.registerHybridHandler(sd, method, handler); err != nil {
 			panic(err)
 		}
 	}
@@ -94,8 +93,7 @@ func (qrt *GRPCQueryRouter) registerAVSIQueryHandler(sd *grpc.ServiceDesc, metho
 	// registered more than once, then we should error. Since we can't
 	// return an error (`Server.RegisterService` interface restriction) we
 	// panic (at startup).
-	_, found := qrt.routes[fqName]
-	if found {
+	if _, found := qrt.routes[fqName]; found {
 		return fmt.Errorf(
 			"gRPC query service %s has already been registered. Please make sure to only register each service once. "+
 				"This usually means that there are conflicting modules registering the same gRPC query service",
@@ -115,8 +113,7 @@ func (qrt *GRPCQueryRouter) registerAVSIQueryHandler(sd *grpc.ServiceDesc, metho
 
 		// proto marshal the result bytes
 		var resBytes []byte
-		resBytes, err = qrt.cdc.Marshal(res)
-		if err != nil {
+		if resBytes, err = qrt.cdc.Marshal(res); err != nil {
 			return nil, err
 		}
 
@@ -139,10 +136,12 @@ func (qrt *GRPCQueryRouter) registerHybridHandler(sd *grpc.ServiceDesc, method g
 	if err != nil {
 		return err
 	}
+
 	methodHandler, err := protocompat.MakeHybridHandler(qrt.binaryCodec, sd, method, handler)
 	if err != nil {
 		return err
 	}
+
 	qrt.hybridHandlers[string(inputName)] = append(qrt.hybridHandlers[string(inputName)], methodHandler)
 	return nil
 }

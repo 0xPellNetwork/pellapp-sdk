@@ -192,7 +192,7 @@ func makeGogoHybridHandler(prefMethod protoreflect.MethodDescriptor, cdc codec.B
 // the type. Since the decoder function is passed in by the concrete implementer the expected
 // message where bytes are unmarshaled to, we can use that to determine the type.
 func isProtov2(md grpc.MethodDesc) (isV2Type bool, err error) {
-	pullRequestType := func(msg interface{}) error {
+	pullRequestType := func(msg any) error {
 		typ := reflect.TypeOf(msg)
 		switch {
 		case typ.Implements(protov2Type):
