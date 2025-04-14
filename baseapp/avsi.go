@@ -3,6 +3,7 @@ package baseapp
 import (
 	"context"
 
+	storetypes "cosmossdk.io/store/types"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/jinzhu/copier" //nolint:depguard
 
@@ -19,8 +20,7 @@ func (app *BaseApp) Info(ctx context.Context, info *avsitypes.RequestInfo) (*avs
 
 // Query handles queries to the application.
 // It implements the AVSI interface by returning a successful response with OK code.
-// TODO: Implement query handling
-func (app *BaseApp) Query(ctx context.Context, query *avsitypes.RequestQuery) (*avsitypes.ResponseQuery, error) {
+func (app *BaseApp) Query(ctx context.Context, req *avsitypes.RequestQuery) (resp *avsitypes.ResponseQuery, err error) {
 	return &avsitypes.ResponseQuery{
 		Code: avsitypes.CodeTypeOK,
 	}, nil
@@ -30,14 +30,13 @@ func (app *BaseApp) Query(ctx context.Context, query *avsitypes.RequestQuery) (*
 // It creates an SDK context with request data and invokes the appropriate request handler.
 // Returns the handler's response or an error response if processing fails.
 func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.RequestProcessDVSRequest) (*avsitypes.ResponseProcessDVSRequest, error) {
-	sdkCtx := sdktypes.NewContext(ctx)
+	sdkCtx := sdktypes.NewContext(ctx, app.cms, app.logger)
 	sdkCtx = sdkCtx.WithChainID(req.Request.ChainId).
 		WithHeight(req.Request.Height).
 		WithGroupNumbers(req.Request.GroupNumbers).
 		WithRequestData(req.Request.Data).
 		WithGroupThresholdPercentages(req.Request.GroupThresholdPercentages).
-		WithOperator(req.Operator).
-		WithLogger(app.logger)
+		WithOperator(req.Operator)
 
 	resp := &avsitypes.ResponseProcessDVSRequest{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.Request.Data)
@@ -60,14 +59,13 @@ func (app *BaseApp) ProcessDVSRequest(ctx context.Context, req *avsitypes.Reques
 // It creates an SDK context with the original request data and validated response,
 // then invokes the appropriate response handler.
 func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.RequestProcessDVSResponse) (*avsitypes.ResponseProcessDVSResponse, error) {
-	sdkCtx := sdktypes.NewContext(ctx)
+	sdkCtx := sdktypes.NewContext(ctx, app.cms, app.logger)
 	sdkCtx = sdkCtx.WithChainID(req.DvsRequest.ChainId).
 		WithHeight(req.DvsRequest.Height).
 		WithGroupNumbers(req.DvsRequest.GroupNumbers).
 		WithRequestData(req.DvsRequest.Data).
 		WithGroupThresholdPercentages(req.DvsRequest.GroupThresholdPercentages).
-		WithValidatedResponse(req.DvsResponse).
-		WithLogger(app.logger)
+		WithValidatedResponse(req.DvsResponse)
 
 	resp := &avsitypes.ResponseProcessDVSResponse{}
 	res, err := app.msgRouter.InvokeByMsgData(sdkCtx, req.DvsRequest.Data)
@@ -83,4 +81,19 @@ func (app *BaseApp) ProcessDVSResponse(ctx context.Context, req *avsitypes.Reque
 		Log:    res.Log,
 		Events: sdktypes.MarkEventsToIndex(res.Events, app.indexEvents),
 	}, nil
+}
+
+// createQueryContext creates a new sdk.Context for a query, taking as args
+// the block height and whether the query needs a proof or not.
+func (app *BaseApp) CreateQueryContext() (sdktypes.Context, error) {
+	// use custom query multi-store if provided
+	qms := app.qms
+	if qms == nil {
+		qms = app.cms.(storetypes.MultiStore)
+	}
+
+	cacheMS := qms.CacheMultiStore()
+	// branch the commit multi-store for safety
+	ctx := sdktypes.NewContext(context.Background(), cacheMS, app.logger)
+	return ctx, nil
 }

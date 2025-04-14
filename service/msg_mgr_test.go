@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/0xPellNetwork/pellapp-sdk/proto/test"
 	"github.com/0xPellNetwork/pellapp-sdk/service/result"
+	"github.com/0xPellNetwork/pellapp-sdk/testutil"
 	sdktypes "github.com/0xPellNetwork/pellapp-sdk/types"
 )
 
@@ -209,7 +211,7 @@ func TestHandleByData(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create a context with necessary values
-	ctx := sdktypes.NewContext(context.Background())
+	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewTransientStoreKey("transient_test"))
 
 	// Test handling data
 	result, err := router.HandleByData(ctx, []byte("test data"))
@@ -258,13 +260,12 @@ func TestDVSResponseHandler(t *testing.T) {
 
 	// Test request handler
 	msg := NewMockMsg("/test.service/TestMethod")
-	ctx := sdktypes.NewContext(context.Background())
+	ctx := testutil.DefaultContext(storetypes.NewKVStoreKey("test"), storetypes.NewTransientStoreKey("transient_test"))
 	handler, found := router.GetHandler(ctx, msg)
 	assert.True(t, found)
 	assert.NotNil(t, handler)
 
 	// Test response handler
-	ctx = sdktypes.NewContext(context.Background())
 	validatedData := &avsitypes.DVSResponse{
 		Data: []byte("test data"),
 	}

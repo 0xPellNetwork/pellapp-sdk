@@ -112,6 +112,22 @@ linters-settings:
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc
           - cosmossdk.io/errors
+          - cosmossdk.io/store
+          - cosmossdk.io/store/types
+          - cosmossdk.io/store/metrics
+          - cosmossdk.io/log
+          - google.golang.org/protobuf/reflect/protoreflect
+          - google.golang.org/protobuf/reflect/protoregistry
+          - google.golang.org/protobuf/runtime/protoiface
+          - github.com/grpc-ecosystem/go-grpc-middleware
+          - github.com/grpc-ecosystem/go-grpc-middleware/recovery
+          - sigs.k8s.io/yaml
+          - github.com/gorilla/mux
+          - github.com/grpc-ecosystem/grpc-gateway/runtime
+          - github.com/improbable-eng/grpc-web/go/grpcweb
+          - golang.org/x/sync/errgroup
+          - github.com/stretchr/testify/suite
+          - github.com/gorilla/handlers
       test:
         files:
           - "$test"
@@ -158,6 +174,23 @@ linters-settings:
           - google.golang.org/protobuf/encoding/protowire
           - google.golang.org/grpc
           - cosmossdk.io/errors
+          - cosmossdk.io/store
+          - cosmossdk.io/store/types
+          - cosmossdk.io/store/metrics
+          - cosmossdk.io/log
+          - google.golang.org/protobuf/reflect/protoreflect
+          - google.golang.org/protobuf/reflect/protoregistry
+          - google.golang.org/protobuf/runtime/protoiface
+          - github.com/grpc-ecosystem/go-grpc-middleware
+          - github.com/grpc-ecosystem/go-grpc-middleware/recovery
+          - sigs.k8s.io/yaml
+          - github.com/gorilla/mux
+          - github.com/grpc-ecosystem/grpc-gateway/runtime
+          - github.com/improbable-eng/grpc-web/go/grpcweb
+          - golang.org/x/sync/errgroup
+          - github.com/stretchr/testify/suite
+          - github.com/jhump/protoreflect/grpcreflect
+          - github.com/gorilla/handlers
   revive:
     enable-all-rules: true
     rules:

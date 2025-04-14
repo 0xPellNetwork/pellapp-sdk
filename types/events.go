@@ -190,7 +190,7 @@ func (a Attribute) String() string {
 	return fmt.Sprintf("%s: %s", a.Key, a.Value)
 }
 
-// ToKVPair converts an Attribute object into a CometBFT key/value pair.
+// ToKVPair converts an Attribute object into a PellDVS key/value pair.
 func (a Attribute) ToKVPair() avsi.EventAttribute {
 	return avsi.EventAttribute{Key: a.Key, Value: a.Value}
 }

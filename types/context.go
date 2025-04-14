@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 )
@@ -11,11 +12,17 @@ import (
 type ContextKeyType string
 
 const (
-	ContextKey ContextKeyType = "pkg_context"
+	ContextKey       ContextKeyType = "pkg_context"
+	ClientContextKey ContextKeyType = "client.context"
+
+	// ServerContextKey defines the context key used to retrieve a server.Context from
+	// a command's Context.
+	ServerContextKey ContextKeyType = "server.context"
 )
 
 type Context struct {
 	baseCtx                   context.Context
+	ms                        storetypes.MultiStore
 	eventManager              EventManagerI
 	chainID                   int64
 	height                    int64
@@ -44,8 +51,34 @@ func (c Context) RequestData() []byte { return c.requestData }
 
 func (c Context) Operators() []*avsitypes.Operator { return c.operators }
 
+func (c Context) Logger() log.Logger { return c.logger }
+
 func (c Context) ValidatedResponse() *avsitypes.DVSResponse {
 	return c.validatedResponse
+}
+
+// MultiStore returns the MultiStore for this context.
+func (c Context) MultiStore() storetypes.MultiStore { return c.ms }
+
+// KVStore returns the KV store for a specific store key.
+func (c Context) KVStore(key storetypes.StoreKey) storetypes.KVStore {
+	return c.ms.GetKVStore(key)
+}
+
+// CacheContext returns a new Context with the multi-store cached and a new
+// EventManager. The cached context is written to the context when writeCache
+// is called. Note, events are automatically emitted on the parent context's
+// EventManager when the caller executes the write.
+func (c Context) CacheContext() (cc Context, writeCache func()) {
+	cms := c.ms.CacheMultiStore()
+	cc = c.WithMultiStore(cms).WithEventManager(NewEventManager())
+
+	writeCache = func() {
+		c.EventManager().EmitEvents(cc.EventManager().Events())
+		cms.Write()
+	}
+
+	return cc, writeCache
 }
 
 func (c Context) Value(key any) any {
@@ -67,12 +100,20 @@ func (c Context) Err() error {
 	return c.baseCtx.Err()
 }
 
+type ContextOption func(Context) Context
+
 // todo delete header
-func NewContext(baseCtx context.Context) Context {
-	return Context{
+func NewContext(baseCtx context.Context, ms storetypes.MultiStore, logger log.Logger, options ...ContextOption) Context {
+	ctx := Context{
 		baseCtx:      baseCtx,
+		ms:           ms,
+		logger:       logger,
 		eventManager: NewEventManager(),
 	}
+	for _, option := range options {
+		ctx = option(ctx)
+	}
+	return ctx
 }
 
 func (c Context) WithLogger(logger log.Logger) Context {
@@ -129,6 +170,12 @@ func (c Context) WithGroupThresholdPercentages(groupThresholdPercentages []uint3
 
 func (c Context) WithValidatedResponse(validatedData *avsitypes.DVSResponse) Context {
 	c.validatedResponse = validatedData
+	return c
+}
+
+// WithMultiStore returns a Context with an updated MultiStore.
+func (c Context) WithMultiStore(ms storetypes.MultiStore) Context {
+	c.ms = ms
 	return c
 }
 
