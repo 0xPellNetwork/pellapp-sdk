@@ -6,7 +6,7 @@ require (
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.5.0
 	cosmossdk.io/store v1.1.1
-	github.com/0xPellNetwork/pelldvs v0.3.0
+	github.com/0xPellNetwork/pelldvs v0.3.1-0.20250603063926-eb6772e744c0
 	github.com/0xPellNetwork/pelldvs-libs v0.2.0
 	github.com/cosmos/cosmos-db v1.1.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
@@ -43,7 +43,7 @@ require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/0xPellNetwork/contracts v0.2.31 // indirect
 	github.com/0xPellNetwork/pell-middleware-contracts v0.2.32 // indirect
-	github.com/0xPellNetwork/pelldvs-interactor v0.0.14 // indirect
+	github.com/0xPellNetwork/pelldvs-interactor v0.0.15 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
 	github.com/AlecAivazis/survey/v2 v2.3.7 // indirect

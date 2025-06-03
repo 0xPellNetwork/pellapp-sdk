@@ -27,8 +27,11 @@ github.com/0xPellNetwork/pell-middleware-contracts v0.2.32 h1:RW2JZB/ScdSqqVaixO
 github.com/0xPellNetwork/pell-middleware-contracts v0.2.32/go.mod h1:Qex0CyN926FuTONIfZfoMsbs+2UDCwMpkZg3QvRccvQ=
 github.com/0xPellNetwork/pelldvs v0.3.0 h1:QhCd8zI4+dhwBokBwDV/HcFzzHcN0VCjP/URgygrI44=
 github.com/0xPellNetwork/pelldvs v0.3.0/go.mod h1:osqufSthuMd6hZxH89Yljopele4mcqx5gxxpRh+heZw=
+github.com/0xPellNetwork/pelldvs v0.3.1-0.20250603063926-eb6772e744c0 h1:0ZANtBl2S9jysUfK/oU/bCguTvE2W5Tp2bc0JxkRPBc=
+github.com/0xPellNetwork/pelldvs v0.3.1-0.20250603063926-eb6772e744c0/go.mod h1:lUgmjQtTDdOlyMFI6IayEbBfYB4eFyz+Kbi8epn7yOo=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.14 h1:vcC0DzK9JNz6x/r8SA+fAcQiata/K/PdQhfIe88JyFQ=
 github.com/0xPellNetwork/pelldvs-interactor v0.0.14/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
+github.com/0xPellNetwork/pelldvs-interactor v0.0.15/go.mod h1:kHbDu0iVhdwF38ZVDB2Fnsg87+gj74wAnaKz+wPwb/w=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0 h1:fNyzJKhH5Iux1YVPddLVwR/txPkbkRvE5+VunS7tFeg=
 github.com/0xPellNetwork/pelldvs-libs v0.2.0/go.mod h1:mU9ltThnyjDpKZHnOuJvMqbQU1O99P4cOAecTUKDAIY=
 github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:/vQbFIOMbk2FiG/kXiLl8BRyzTWDw7gX/Hz7Dd5eDMs=

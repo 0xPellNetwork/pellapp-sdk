@@ -40,7 +40,7 @@ func NewNode(
 	}
 
 	var err error
-	n.agg, err = aggRPC.NewRPCClientAggregator(nodeCfg.Pell.AggregatorRPCURL)
+	n.agg, err = aggRPC.NewRPCClientAggregator(nodeCfg.Pell.AggregatorRPCURL, logger)
 	if err != nil {
 		logger.Error("Failed to create aggregator client", "error", err)
 		return nil, fmt.Errorf("failed to create aggregator client: %v", err)
