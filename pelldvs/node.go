@@ -2,6 +2,7 @@ package pelldvs
 
 import (
 	"fmt"
+	"github.com/0xPellNetwork/pelldvs-interactor/interactor/reader"
 
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	aggRPC "github.com/0xPellNetwork/pelldvs/aggregator/rpc"
@@ -33,6 +34,7 @@ func NewNode(
 	logger log.Logger,
 	app avsitypes.Application,
 	nodeCfg *config.Config,
+	dvsReader reader.DVSReader,
 ) (*Node, error) {
 	var n = &Node{
 		logger:  logger,
@@ -65,6 +67,7 @@ func NewNode(
 		proxy.NewLocalClientCreator(app),
 		config.DefaultDBProvider,
 		n.agg,
+		dvsReader,
 		node.DefaultMetricsProvider(n.nodeCfg.Instrumentation),
 		logger,
 	)
