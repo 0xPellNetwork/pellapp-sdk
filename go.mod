@@ -6,9 +6,9 @@ require (
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.5.0
 	cosmossdk.io/store v1.1.1
-	github.com/0xPellNetwork/pelldvs v0.3.1
-	github.com/0xPellNetwork/pelldvs-interactor v0.0.16-0.20250611172719-1280e6d84b4c
-	github.com/0xPellNetwork/pelldvs-libs v0.2.1
+	github.com/0xPellNetwork/pelldvs v0.4.0
+	github.com/0xPellNetwork/pelldvs-interactor v0.0.16
+	github.com/0xPellNetwork/pelldvs-libs v0.2.2
 	github.com/cosmos/cosmos-db v1.1.3
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.50.11

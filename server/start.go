@@ -2,12 +2,14 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"os"
 	"runtime/pprof"
 	"time"
 
+	"github.com/0xPellNetwork/pelldvs-interactor/interactor/reader"
 	pelldvscfg "github.com/0xPellNetwork/pelldvs/config"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -27,7 +29,7 @@ import (
 
 const (
 	// PellDVS full-node start flags
-	flagWithComet       = "with-pelldvs"
+	flagWithPellDVS     = "with-pelldvs"
 	flagTraceStore      = "trace-store"
 	flagCPUProfile      = "cpu-profile"
 	FlagInterBlockCache = "inter-block-cache"
@@ -59,14 +61,20 @@ type StartCmdOptions struct {
 
 	// PostSetup can be used to setup extra services under the same cancellable context,
 	// it's not called in stand-alone mode, only for in-process mode.
-	PostSetup func(svrCtx *Context, clientCtx client.Context, ctx context.Context, app types.Application, g *errgroup.Group) error
+	PostSetup func(svrCtx *Context,
+		clientCtx client.Context,
+		ctx context.Context,
+		app types.Application,
+		g *errgroup.Group,
+	) error
 
 	// PostSetupStandalone can be used to setup extra services under the same cancellable context,
 	PostSetupStandalone func(svrCtx *Context, clientCtx client.Context, ctx context.Context, g *errgroup.Group) error
 	// AddFlags add custom flags to start cmd
 	AddFlags func(cmd *cobra.Command)
 	// StartCommandHanlder can be used to customize the start command handler
-	StartCommandHandler func(svrCtx *Context, clientCtx client.Context, appCreator types.AppCreator, inProcessConsensus bool, opts StartCmdOptions) error
+	StartCommandHandler func(svrCtx *Context, clientCtx client.Context, appCreator types.AppCreator,
+		inProcessConsensus bool, opts StartCmdOptions) error
 }
 
 // StartCmd runs the service passed in, either stand-alone or in-process with
@@ -118,11 +126,10 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 				return err
 			}
 
-			withPellDVSNode, _ := cmd.Flags().GetBool(flagWithComet)
+			withPellDVSNode, _ := cmd.Flags().GetBool(flagWithPellDVS)
 			if !withPellDVSNode {
 				serverCtx.Logger.Info("starting AVSI without PellDVS")
 			}
-
 			err = wrapCPUProfile(serverCtx, func() error {
 				return opts.StartCommandHandler(serverCtx, clientCtx, appCreator, withPellDVSNode, opts)
 			})
@@ -144,7 +151,12 @@ is performed. Note, when enabled, gRPC will also be automatically enabled.
 	return cmd
 }
 
-func start(svrCtx *Context, clientCtx client.Context, appCreator types.AppCreator, withPellDVSNode bool, opts StartCmdOptions) error {
+func start(svrCtx *Context,
+	clientCtx client.Context,
+	appCreator types.AppCreator,
+	withPellDVSNode bool,
+	opts StartCmdOptions,
+) error {
 	svrCfg, err := getAndValidateConfig(svrCtx)
 	if err != nil {
 		return err
@@ -161,25 +173,17 @@ func start(svrCtx *Context, clientCtx client.Context, appCreator types.AppCreato
 
 // startInProcess starts the server in-process with PellDVS, currently we only support
 // starting the server in-process with PellDVS. The server will start the gRPC server
-func startInProcess(svrCtx *Context, svrCfg serverconfig.Config, clientCtx client.Context, app types.Application,
+func startInProcess(
+	svrCtx *Context,
+	svrCfg serverconfig.Config,
+	clientCtx client.Context,
+	app types.Application,
 	opts StartCmdOptions,
 ) error {
 	cmtCfg := svrCtx.Config
 	gRPCOnly := svrCtx.Viper.GetBool(flagGRPCOnly)
 
 	g, ctx := getCtx(svrCtx, true)
-
-	if gRPCOnly {
-		// TODO: Generalize logic so that gRPC only is really in startStandAlone
-		svrCtx.Logger.Info("starting node in gRPC only mode; PellDVS is disabled")
-		svrCfg.GRPC.Enable = true
-	} else {
-		svrCtx.Logger.Info("starting node with AVSI PellDVS in-process")
-		_, _, err := startPellDVSNode(ctx, cmtCfg, app, svrCtx)
-		if err != nil {
-			return err
-		}
-	}
 
 	grpcSrv, clientCtx, err := startGrpcServer(ctx, g, svrCfg.GRPC, clientCtx, svrCtx, app)
 	if err != nil {
@@ -195,6 +199,21 @@ func startInProcess(svrCtx *Context, svrCfg serverconfig.Config, clientCtx clien
 		if err := opts.PostSetup(svrCtx, clientCtx, ctx, app, g); err != nil {
 			return err
 		}
+		dvsReader, ok := svrCtx.GetDVSReader()
+		if !ok {
+			return fmt.Errorf("DVSReader is not set")
+		}
+		if gRPCOnly {
+			// TODO: Generalize logic so that gRPC only is really in startStandAlone
+			svrCtx.Logger.Info("starting node in gRPC only mode; PellDVS is disabled")
+			svrCfg.GRPC.Enable = true
+		} else {
+			svrCtx.Logger.Info("starting node with AVSI PellDVS in-process")
+			_, _, err := startPellDVSNode(ctx, cmtCfg, app, dvsReader, svrCtx)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	// wait for signal capture and gracefully return
@@ -206,10 +225,11 @@ func startPellDVSNode(
 	ctx context.Context,
 	cfg *pelldvscfg.Config,
 	app types.Application,
+	dvsReader reader.DVSReader,
 	svrCtx *Context,
 ) (dvsNode *pelldvs.Node, cleanupFn func(), err error) {
 	logger := svrCtx.Logger.With("module", "node")
-	dvsNode, err = pelldvs.NewNode(logger, app, cfg)
+	dvsNode, err = pelldvs.NewNode(logger, app, cfg, dvsReader)
 	if err != nil {
 		return dvsNode, cleanupFn, err
 	}
@@ -247,7 +267,8 @@ func setupTraceWriter(svrCtx *Context) (traceWriter io.WriteCloser, cleanup func
 	if traceWriter != nil {
 		cleanup = func() {
 			if err = traceWriter.Close(); err != nil {
-				svrCtx.Logger.Error("failed to close trace writer", "err", err)
+				svrCtx.Logger.Error("failed to close trace writer",
+					"err", err)
 			}
 		}
 	}
@@ -376,7 +397,8 @@ func getCtx(svrCtx *Context, block bool) (*errgroup.Group, context.Context) {
 	return g, ctx
 }
 
-func setupApp(svrCtx *Context, appCreator types.AppCreator, opts StartCmdOptions) (app types.Application, cleanupFn func(), err error) {
+func setupApp(svrCtx *Context, appCreator types.AppCreator,
+	opts StartCmdOptions) (app types.Application, cleanupFn func(), err error) {
 	traceWriter, traceCleanupFn, err := setupTraceWriter(svrCtx)
 	if err != nil {
 		return app, traceCleanupFn, err
@@ -405,7 +427,8 @@ func addStartNodeFlags(cmd *cobra.Command, opts StartCmdOptions) {
 	cmd.Flags().String(flagCPUProfile, "", "Enable CPU profiling and write to the provided file")
 	cmd.Flags().Bool(FlagTrace, false, "Provide full stack traces for errors in AVSI Log")
 	cmd.Flags().Bool(FlagAPIEnable, true, "Define if the API server should be enabled")
-	cmd.Flags().Bool(FlagAPISwagger, false, "Define if swagger documentation should automatically be registered (Note: the API must also be enabled)")
+	cmd.Flags().Bool(FlagAPISwagger, false, "Define if swagger documentation should "+
+		"automatically be registered (Note: the API must also be enabled)")
 	cmd.Flags().String(FlagAPIAddress, serverconfig.DefaultAPIAddress, "the API server address to listen on")
 	cmd.Flags().Uint(FlagAPIMaxOpenConnections, 1000, "Define the number of maximum open connections")
 	cmd.Flags().Uint(FlagRPCReadTimeout, 10, "Define the PellDVS RPC read timeout (in seconds)")
@@ -415,7 +438,8 @@ func addStartNodeFlags(cmd *cobra.Command, opts StartCmdOptions) {
 	cmd.Flags().Bool(flagGRPCOnly, false, "Start the node in gRPC query only mode (no PellDVS process is started)")
 	cmd.Flags().Bool(flagGRPCEnable, true, "Define if the gRPC server should be enabled")
 	cmd.Flags().String(flagGRPCAddress, serverconfig.DefaultGRPCAddress, "the gRPC server address to listen on")
-	cmd.Flags().Bool(flagGRPCWebEnable, true, "Define if the gRPC-Web server should be enabled. (Note: gRPC must also be enabled)")
+	cmd.Flags().Bool(flagGRPCWebEnable, true, "Define if the gRPC-Web server should be enabled. "+
+		"(Note: gRPC must also be enabled)")
 	cmd.Flags().Duration(FlagShutdownGrace, 0*time.Second, "On Shutdown, duration to wait for resource clean up")
 
 	if opts.AddFlags != nil {
