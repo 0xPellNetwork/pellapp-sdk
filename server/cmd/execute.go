@@ -41,6 +41,5 @@ func CreateExecuteContext(ctx context.Context) context.Context {
 	srvCtx := server.NewDefaultContext()
 	ctx = context.WithValue(ctx, sdktypes.ClientContextKey, &client.Context{})
 	ctx = context.WithValue(ctx, sdktypes.ServerContextKey, srvCtx)
-
 	return ctx
 }

@@ -3,8 +3,9 @@ package pelldvs
 import (
 	"fmt"
 
+	"github.com/0xPellNetwork/pelldvs-interactor/interactor/reader"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
-	aggRPC "github.com/0xPellNetwork/pelldvs/aggregator/rpc"
+	aggrpc "github.com/0xPellNetwork/pelldvs/aggregator/rpc"
 	avsitypes "github.com/0xPellNetwork/pelldvs/avsi/types"
 	"github.com/0xPellNetwork/pelldvs/config"
 	"github.com/0xPellNetwork/pelldvs/node"
@@ -15,7 +16,7 @@ import (
 )
 
 type Node struct {
-	agg     *aggRPC.RPCClientAggregator
+	agg     *aggrpc.AggregatorRPCClient
 	nodeCfg *config.Config
 	logger  log.Logger
 	node    *node.Node
@@ -33,6 +34,7 @@ func NewNode(
 	logger log.Logger,
 	app avsitypes.Application,
 	nodeCfg *config.Config,
+	dvsReader reader.DVSReader,
 ) (*Node, error) {
 	var n = &Node{
 		logger:  logger,
@@ -40,7 +42,7 @@ func NewNode(
 	}
 
 	var err error
-	n.agg, err = aggRPC.NewRPCClientAggregator(nodeCfg.Pell.AggregatorRPCURL)
+	n.agg, err = aggrpc.NewAggregatorRPCClient(nodeCfg.Pell.AggregatorRPCURL, logger)
 	if err != nil {
 		logger.Error("Failed to create aggregator client", "error", err)
 		return nil, fmt.Errorf("failed to create aggregator client: %v", err)
@@ -65,6 +67,7 @@ func NewNode(
 		proxy.NewLocalClientCreator(app),
 		config.DefaultDBProvider,
 		n.agg,
+		dvsReader,
 		node.DefaultMetricsProvider(n.nodeCfg.Instrumentation),
 		logger,
 	)

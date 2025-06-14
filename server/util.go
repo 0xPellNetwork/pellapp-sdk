@@ -13,6 +13,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/0xPellNetwork/pelldvs-interactor/interactor/reader"
 	"github.com/0xPellNetwork/pelldvs-libs/log"
 	cmtcmd "github.com/0xPellNetwork/pelldvs/cmd/pelldvs/commands"
 	pelldvscfg "github.com/0xPellNetwork/pelldvs/config"
@@ -34,9 +35,11 @@ import (
 
 // server context
 type Context struct {
-	Viper  *viper.Viper
-	Config *pelldvscfg.Config
-	Logger log.Logger
+	Viper             *viper.Viper
+	Config            *pelldvscfg.Config
+	Logger            log.Logger
+	DVSReader         reader.DVSReader
+	hasSetupDVSReader bool
 }
 
 func NewDefaultContext() *Context {
@@ -48,7 +51,28 @@ func NewDefaultContext() *Context {
 }
 
 func NewContext(v *viper.Viper, config *pelldvscfg.Config, logger log.Logger) *Context {
-	return &Context{v, config, logger}
+	return &Context{
+		Viper:             v,
+		Config:            config,
+		Logger:            logger,
+		hasSetupDVSReader: false,
+	}
+}
+
+// HasSetupDVSReader returns true if the DVSReader has been set up.
+func (c *Context) HasSetupDVSReader() bool {
+	return c.hasSetupDVSReader
+}
+
+// SetDVSReader sets the DVSReader for the context and marks it as set up.
+func (c *Context) SetDVSReader(dvsReader reader.DVSReader) {
+	c.DVSReader = dvsReader
+	c.hasSetupDVSReader = true
+}
+
+// GetDVSReader returns the DVSReader for the context, or nil if it has not been set up.
+func (c *Context) GetDVSReader() (reader.DVSReader, bool) {
+	return c.DVSReader, c.hasSetupDVSReader
 }
 
 func bindFlags(basename string, cmd *cobra.Command, v *viper.Viper) (err error) {
@@ -61,7 +85,8 @@ func bindFlags(basename string, cmd *cobra.Command, v *viper.Viper) (err error) 
 	cmd.Flags().VisitAll(func(f *pflag.Flag) {
 		// Environment variables can't have dashes in them, so bind them to their equivalent
 		// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
-		err = v.BindEnv(f.Name, fmt.Sprintf("%s_%s", basename, strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))))
+		err = v.BindEnv(f.Name,
+			fmt.Sprintf("%s_%s", basename, strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))))
 		if err != nil {
 			panic(err)
 		}
@@ -87,7 +112,12 @@ func bindFlags(basename string, cmd *cobra.Command, v *viper.Viper) (err error) 
 
 // InterceptConfigsPreRunHandler is identical to InterceptConfigsAndCreateContext
 // except it also sets the server context on the command and the server logger.
-func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate string, customAppConfig interface{}, pellDVSConfig *pelldvscfg.Config) error {
+func InterceptConfigsPreRunHandler(
+	cmd *cobra.Command,
+	customAppConfigTemplate string,
+	customAppConfig interface{},
+	pellDVSConfig *pelldvscfg.Config,
+) error {
 	serverCtx, err := InterceptConfigsAndCreateContext(cmd, customAppConfigTemplate, customAppConfig, pellDVSConfig)
 	if err != nil {
 		return err
@@ -118,7 +148,12 @@ func InterceptConfigsPreRunHandler(cmd *cobra.Command, customAppConfigTemplate s
 // is used to read and parse the application configuration. Command handlers can
 // fetch the server Context to get the PellDVS configuration or to get access
 // to Viper.
-func InterceptConfigsAndCreateContext(cmd *cobra.Command, customAppConfigTemplate string, customAppConfig interface{}, cmtConfig *pelldvscfg.Config) (*Context, error) {
+func InterceptConfigsAndCreateContext(
+	cmd *cobra.Command,
+	customAppConfigTemplate string,
+	customAppConfig interface{},
+	cmtConfig *pelldvscfg.Config,
+) (*Context, error) {
 	serverCtx := NewDefaultContext()
 
 	// Get the executable name and configure the viper instance so that environmental
@@ -224,7 +259,12 @@ func SetCmdServerContext(cmd *cobra.Command, serverCtx *Context) error {
 // configuration file. The PellDVS configuration file is parsed given a root
 // Viper object, whereas the application is parsed with the private package-aware
 // viperCfg object.
-func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customConfig interface{}, cmtConfig *pelldvscfg.Config) (*pelldvscfg.Config, error) {
+func interceptConfigs(
+	rootViper *viper.Viper,
+	customAppTemplate string,
+	customConfig interface{},
+	cmtConfig *pelldvscfg.Config,
+) (*pelldvscfg.Config, error) {
 	rootDir := rootViper.GetString(flags.FlagHome)
 	configPath := filepath.Join(rootDir, "config")
 	cmtCfgFile := filepath.Join(configPath, "config.toml")
@@ -300,7 +340,11 @@ func interceptConfigs(rootViper *viper.Viper, customAppTemplate string, customCo
 }
 
 // add server commands
-func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator types.AppCreator, addStartFlags types.ModuleInitFlags) {
+func AddCommands(rootCmd *cobra.Command,
+	defaultNodeHome string,
+	appCreator types.AppCreator,
+	addStartFlags types.ModuleInitFlags,
+) {
 	pelldvsCmds := &cobra.Command{
 		Use:   "dvs",
 		Short: "PellDVS subcommands",
@@ -322,9 +366,13 @@ func AddCommands(rootCmd *cobra.Command, defaultNodeHome string, appCreator type
 }
 
 // AddCommandsWithStartCmdOptions adds server commands with the provided StartCmdOptions.
-func AddCommandsWithStartCmdOptions(rootCmd *cobra.Command, defaultNodeHome string, appCreator types.AppCreator, opts StartCmdOptions) {
+func AddCommandsWithStartCmdOptions(
+	rootCmd *cobra.Command,
+	defaultNodeHome string,
+	appCreator types.AppCreator,
+	opts StartCmdOptions,
+) {
 	startCmd := StartCmdWithOptions(appCreator, defaultNodeHome, opts)
-
 	rootCmd.AddCommand(
 		startCmd,
 		version.NewVersionCommand(),
